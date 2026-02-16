@@ -59,7 +59,7 @@ export default function CategoryList({
             </span>
           </div>
         </div>
-        <div className="hairline-divider w-full"></div>
+        <div className="border-b border-white/5 w-full"></div>
       </div>
 
       <Reorder.Group
@@ -136,7 +136,15 @@ export default function CategoryList({
                         <Edit3 size={14} />
                       </button>
                       <button
-                        onClick={() => onDeleteCategory(cat.id, cat.name)}
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `"${cat.name}" 카테고리를 삭제하시겠습니까? 이 카테고리에 속한 할 일은 모두 휴지통으로 이동합니다.`,
+                            )
+                          ) {
+                            onDeleteCategory(cat.id, cat.name);
+                          }
+                        }}
                         className="text-red-500/30 hover:text-red-500"
                       >
                         <Trash2 size={14} />
@@ -145,7 +153,7 @@ export default function CategoryList({
                   )}
                 </div>
               </div>
-              <div className="hairline-divider w-full"></div>
+              <div className="border-b border-white/5 w-full"></div>
             </Reorder.Item>
           );
         })}

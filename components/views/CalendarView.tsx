@@ -99,12 +99,16 @@ export default function CalendarView({
 
       <section className="space-y-6 pb-24 animate-in slide-in-from-bottom-6 duration-1000">
         {calendarTodos.map((todo) => (
-          <TodoItem
+          <div
             key={todo.id}
-            todo={todo}
-            onToggle={onToggleTodo}
-            onDelete={onDeleteTodo}
-          />
+            className="pb-4 border-b border-white/5 last:border-0"
+          >
+            <TodoItem
+              todo={todo}
+              onToggle={onToggleTodo}
+              onDelete={onDeleteTodo}
+            />
+          </div>
         ))}
         {calendarTodos.length === 0 && (
           <p className="text-white/10 text-[13px] lowercase font-light tracking-wide italic">

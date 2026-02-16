@@ -171,7 +171,7 @@ export default function Home() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: window.location.origin + "/whattodo",
       },
     });
     if (error) alert(error.message);

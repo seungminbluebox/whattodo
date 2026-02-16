@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, FolderPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Category } from "@/store/useTodoStore";
 import { supabase } from "@/lib/supabase";
@@ -65,8 +65,8 @@ export default function Footer({
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-8 pb-12 pt-8 bg-gradient-to-t from-black via-black/95 to-transparent z-50">
-      <form onSubmit={handleAddTodo} className="space-y-4">
-        <div className="flex flex-col border-b border-white/10 focus-within:border-white/40 transition-colors pb-3">
+      <form onSubmit={handleAddTodo} className="space-y-6">
+        <div className="flex flex-col border border-white/10 bg-white/5 rounded-2xl p-4 focus-within:border-white/20 focus-within:bg-white/[0.07] transition-all">
           <div className="flex items-center justify-between gap-4">
             <input
               value={inputValue}
@@ -305,8 +305,12 @@ export default function Footer({
         </div>
 
         {view === "category" && !activeCategory && (
-          <div className="flex justify-between items-center opacity-80 gap-4">
-            <div className="flex-1 flex items-center gap-2">
+          <div className="mt-2 px-1">
+            <div className="flex items-center gap-3 border border-white/10 bg-white/[0.02] rounded-xl px-4 py-3 focus-within:border-white/30 focus-within:bg-white/[0.05] focus-within:ring-1 focus-within:ring-white/10 transition-all group">
+              <FolderPlus
+                size={14}
+                className="text-white/20 group-focus-within:text-white/50 transition-colors"
+              />
               <input
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
@@ -316,18 +320,23 @@ export default function Footer({
                     handleAddCategory(e);
                   }
                 }}
-                placeholder="add category"
-                className="bg-transparent border-none p-0 text-[13px] font-normal tracking-tight text-white/40 focus:ring-0 placeholder:text-white/20 lowercase flex-1 min-w-0"
+                placeholder="create new category..."
+                className="bg-transparent border-none p-0 text-[13px] font-medium tracking-tight text-white/50 focus:ring-0 placeholder:text-white/20 lowercase flex-1 min-w-0"
               />
-              {newCatName.trim() && (
-                <button
-                  type="button"
-                  onClick={handleAddCategory}
-                  className="text-white/40 hover:text-white transition-colors shrink-0"
-                >
-                  <Plus size={14} strokeWidth={2} />
-                </button>
-              )}
+              <AnimatePresence>
+                {newCatName.trim() && (
+                  <motion.button
+                    initial={{ opacity: 0, x: 5 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 5 }}
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="bg-white/10 hover:bg-white text-white hover:text-black p-1.5 rounded-lg transition-all shrink-0"
+                  >
+                    <Plus size={14} strokeWidth={2.5} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         )}

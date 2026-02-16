@@ -146,7 +146,11 @@ export default function TodoItem({
           )}
         </div>
         <button
-          onClick={() => onDelete?.(todo.id)}
+          onClick={() => {
+            if (window.confirm("Move to trash?")) {
+              onDelete?.(todo.id);
+            }
+          }}
           className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-2 text-red-500/50 hover:text-red-500 transition-all ml-4"
           title="Delete"
         >
