@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "What To Do",
   description: "Minimalist Todo List",
-  manifest: "/manifest.json",
+  manifest: "/whattodo/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
