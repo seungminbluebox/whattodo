@@ -21,7 +21,7 @@ export default function Header({
   setEditingCatId,
 }: HeaderProps) {
   return (
-    <header className="flex justify-between items-center pt-4 pb-12">
+    <header className="flex justify-between items-center pt-4 pb-12 border-b border-white/20 w-full">
       <div className="flex gap-6">
         <button
           onClick={() => {

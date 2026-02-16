@@ -1,5 +1,6 @@
 ﻿"use client";
 import { useEffect, useState, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useTodoStore, Category } from "@/store/useTodoStore";
 
@@ -85,6 +86,32 @@ export default function Home() {
       fetchCategories();
     }
   }, [user, fetchTodos, fetchCategories]);
+
+  // 모바일 뒤로가기 버튼 처리
+  useEffect(() => {
+    const handlePopState = () => {
+      if (activeCategory) {
+        setActiveCategory(null);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [activeCategory]);
+
+  // 카테고리 선택 시 히스토리 추가
+  const handleSelectCategory = (cat: Category | null) => {
+    if (cat) {
+      window.history.pushState({ view: "detail" }, "");
+    }
+    setActiveCategory(cat);
+  };
+
+  const handleBack = () => {
+    if (activeCategory) {
+      window.history.back();
+    }
+  };
 
   const handleUpdateCategoryName = async (id: string) => {
     if (!editingCatName.trim()) return;
@@ -275,58 +302,97 @@ export default function Home() {
           setEditingCatId={setEditingCatId}
         />
 
-        <main className="flex-grow overflow-y-auto no-scrollbar pb-32">
-          {view === "trash" ? (
-            <TrashView
-              trashTodos={trashTodos}
-              onEmptyTrash={handleEmptyTrash}
-              onRestoreTodo={handleRestoreTodo}
-              onPermanentDeleteTodo={permanentlyDeleteTodo}
-            />
-          ) : view === "category" ? (
-            !activeCategory ? (
-              <CategoryList
-                categories={categories}
-                activeTodos={activeTodos}
-                isEditing={isEditing}
-                editingCatId={editingCatId}
-                editingCatName={editingCatName}
-                setEditingCatId={setEditingCatId}
-                setEditingCatName={setEditingCatName}
-                setCategories={setCategories}
-                onUpdateCategoryName={handleUpdateCategoryName}
-                onDeleteCategory={handleDeleteCategory}
-                onSelectCategory={setActiveCategory}
-              />
+        <main className="flex-grow overflow-hidden relative">
+          <AnimatePresence mode="wait">
+            {view === "trash" ? (
+              <motion.div
+                key="trash"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="h-full overflow-y-auto no-scrollbar pb-60"
+              >
+                <TrashView
+                  trashTodos={trashTodos}
+                  onEmptyTrash={handleEmptyTrash}
+                  onRestoreTodo={handleRestoreTodo}
+                  onPermanentDeleteTodo={permanentlyDeleteTodo}
+                />
+              </motion.div>
+            ) : view === "category" ? (
+              !activeCategory ? (
+                <motion.div
+                  key="categories"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="h-full overflow-y-auto no-scrollbar pb-60"
+                >
+                  <CategoryList
+                    categories={categories}
+                    activeTodos={activeTodos}
+                    isEditing={isEditing}
+                    editingCatId={editingCatId}
+                    editingCatName={editingCatName}
+                    setEditingCatId={setEditingCatId}
+                    setEditingCatName={setEditingCatName}
+                    setCategories={setCategories}
+                    onUpdateCategoryName={handleUpdateCategoryName}
+                    onDeleteCategory={handleDeleteCategory}
+                    onSelectCategory={handleSelectCategory}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`category-${activeCategory.id}`}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="h-full overflow-y-auto no-scrollbar pb-60"
+                >
+                  <CategoryDetailView
+                    activeCategory={activeCategory}
+                    onBack={handleBack}
+                    pendingInCat={pendingInCat}
+                    somedayInCat={somedayInCat}
+                    completedInCat={completedInCat}
+                    onToggleTodo={toggleTodo}
+                    onDeleteTodo={deleteTodo}
+                    editingTodoId={editingTodoId}
+                    setEditingTodoId={setEditingTodoId}
+                    editingTodoContent={editingTodoContent}
+                    setEditingTodoContent={setEditingTodoContent}
+                    onUpdateTodoContent={handleUpdateTodoContent}
+                  />
+                </motion.div>
+              )
             ) : (
-              <CategoryDetailView
-                activeCategory={activeCategory}
-                onBack={() => setActiveCategory(null)}
-                pendingInCat={pendingInCat}
-                somedayInCat={somedayInCat}
-                completedInCat={completedInCat}
-                onToggleTodo={toggleTodo}
-                onDeleteTodo={deleteTodo}
-                editingTodoId={editingTodoId}
-                setEditingTodoId={setEditingTodoId}
-                editingTodoContent={editingTodoContent}
-                setEditingTodoContent={setEditingTodoContent}
-                onUpdateTodoContent={handleUpdateTodoContent}
-              />
-            )
-          ) : (
-            <CalendarView
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              todos={todos}
-              categories={categories}
-              monthName={monthName}
-              daysInMonth={daysInMonth}
-              changeMonth={changeMonth}
-              onToggleTodo={toggleTodo}
-              onDeleteTodo={deleteTodo}
-            />
-          )}
+              <motion.div
+                key="calendar"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                className="h-full overflow-y-auto no-scrollbar pb-60"
+              >
+                <CalendarView
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                  todos={todos}
+                  categories={categories}
+                  monthName={monthName}
+                  daysInMonth={daysInMonth}
+                  changeMonth={changeMonth}
+                  onToggleTodo={toggleTodo}
+                  onDeleteTodo={deleteTodo}
+                  direction={direction}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </main>
 
         <Footer

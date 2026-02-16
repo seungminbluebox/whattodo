@@ -31,15 +31,28 @@ export default function CategoryDetailView({
   setEditingTodoContent,
   onUpdateTodoContent,
 }: CategoryDetailViewProps) {
+  const allTodos = [...pendingInCat, ...somedayInCat, ...completedInCat];
+  const total = allTodos.length;
+  const done = completedInCat.length;
+  const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
   return (
     <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
-      <div className="flex items-center gap-4 mb-2">
+      <div className="flex items-start justify-between mb-2">
         <button
           onClick={onBack}
-          className="text-white/20 hover:text-white text-[12px] uppercase font-bold tracking-widest"
+          className="text-white/40 hover:text-white text-[15px] uppercase font-medium tracking-[0.2em] flex items-center gap-2 transition-colors"
         >
-          ← back
+          <span className="text-[20px] leading-none mb-0.5">←</span> back
         </button>
+        <div className="flex flex-col items-end gap-1">
+          <div className="text-white/40 text-[11px] tracking-widest font-bold uppercase">
+            {done} / {total}
+          </div>
+          <div className="text-white/20 text-[9px] tracking-[0.2em] font-medium uppercase">
+            {percent}% completed
+          </div>
+        </div>
       </div>
 
       <h2 className="text-[32px] font-light text-white tracking-tight leading-none lowercase">

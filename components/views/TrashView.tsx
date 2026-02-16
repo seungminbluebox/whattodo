@@ -18,8 +18,8 @@ export default function TrashView({
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
       <div className="flex justify-between items-end">
-        <h2 className="text-[32px] font-light text-white tracking-tight leading-none lowercase">
-          trash
+        <h2 className="text-[32px] font-light text-white tracking-tight leading-none lowercase mt-4">
+          🗑️
         </h2>
         {trashTodos.length > 0 && (
           <button

@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "framer-motion";
 import { Trash2, RotateCcw } from "lucide-react";
 import { Todo } from "@/store/useTodoStore";
 
@@ -33,7 +34,13 @@ export default function TodoItem({
 }: TodoItemProps) {
   if (isTrash) {
     return (
-      <div className="flex items-start group min-h-[48px]">
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="flex items-start group min-h-[48px]"
+      >
         <div className="w-1 h-1 bg-white/20 rounded-full mt-[10px] mr-4 flex-shrink-0"></div>
         <div className="flex-grow flex items-start justify-between gap-4">
           <div className="flex flex-col min-w-0">
@@ -58,7 +65,7 @@ export default function TodoItem({
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -69,7 +76,14 @@ export default function TodoItem({
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="flex items-start group">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="flex items-start group"
+    >
       <button
         onClick={() => onToggle?.(todo.id, todo.is_completed)}
         className={`w-4 h-4 rounded-full border border-white/20 mt-[3px] mr-3 flex-shrink-0 flex items-center justify-center hover:border-white transition-colors ${todo.is_completed ? "bg-white/10" : ""}`}
@@ -157,6 +171,6 @@ export default function TodoItem({
           <Trash2 size={16} strokeWidth={1.5} />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
