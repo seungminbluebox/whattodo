@@ -55,7 +55,7 @@ def send_daily_reminders():
 
         subscription_info = sub_resp.data['subscription']
 
-        # 푸시 알림 전송
+        # 푸시 알림 전송 (Urgency와 TTL 추가하여 전송률 향상)
         try:
             webpush(
                 subscription_info=subscription_info,
@@ -65,7 +65,11 @@ def send_daily_reminders():
                     "url": "/whattodo/"
                 }),
                 vapid_private_key=VAPID_PRIVATE_KEY,
-                vapid_claims=VAPID_CLAIMS
+                vapid_claims=VAPID_CLAIMS,
+                headers={
+                    "Urgency": "high",   # 기기를 깨우기 위한 높은 우선순위
+                    "TTL": "86400"        # 기기가 꺼져있을 때 24시간 동안 재시도
+                }
             )
             print(f"성공: [{content}] 알림을 유저 {user_id}에게 보냈습니다.")
         except WebPushException as ex:

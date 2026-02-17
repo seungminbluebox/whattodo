@@ -97,11 +97,20 @@ export default function TodoItem({
     );
   }
 
-  const dueDate = todo.due_date ? new Date(todo.due_date) : null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const diffTime = dueDate ? dueDate.getTime() - today.getTime() : 0;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const getDiffDays = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const targetDate = new Date(year, month - 1, day);
+    const today = new Date();
+    const todayDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    const diffTime = targetDate.getTime() - todayDate.getTime();
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const diffDays = todo.due_date ? getDiffDays(todo.due_date) : 0;
 
   return (
     <motion.div
@@ -225,7 +234,7 @@ export default function TodoItem({
                       }`}
                     >
                       {diffDays === 0
-                        ? "Today"
+                        ? "D-Day"
                         : diffDays > 0
                           ? `D-${diffDays}`
                           : `D+${Math.abs(diffDays)}`}

@@ -81,7 +81,7 @@ export default function CalendarView({
 
   return (
     <div className="animate-in fade-in slide-in-from-top-4 duration-1000">
-      <div className="mt-4 mb-12 flex items-center justify-center space-x-12">
+      <div className="mt-2 mb-8 flex items-center justify-center space-x-12">
         <button
           onClick={() => changeMonth(-1)}
           className="text-foreground/20 hover:text-foreground transition-colors p-2"
@@ -104,7 +104,7 @@ export default function CalendarView({
         </button>
       </div>
 
-      <div className="relative overflow-hidden mb-16 px-2">
+      <div className="relative overflow-hidden mb-8 px-2">
         <AnimatePresence mode="popLayout" custom={direction}>
           <motion.div
             key={`${daysInMonth.year}-${daysInMonth.month}`}
@@ -131,18 +131,18 @@ export default function CalendarView({
             }}
             transition={springTransition}
           >
-            <div className="grid grid-cols-7 gap-y-4 text-center select-none">
+            <div className="grid grid-cols-7 gap-y-2 text-center select-none">
               {["S", "m", "t", "w", "t", "f", "s"].map((d, i) => (
                 <div
                   key={`${d}-${i}`}
-                  className="text-[10px] font-black text-muted uppercase tracking-[0.3em] pb-6"
+                  className="text-[9px] font-black text-muted uppercase tracking-[0.3em] pb-3"
                 >
                   {d}
                 </div>
               ))}
 
               {Array.from({ length: daysInMonth.firstDay }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-14"></div>
+                <div key={`empty-${i}`} className="h-11"></div>
               ))}
 
               {Array.from({ length: daysInMonth.lastDate }).map((_, i) => {
@@ -159,10 +159,10 @@ export default function CalendarView({
                   <button
                     key={day}
                     onClick={() => setSelectedDate(dateStr)}
-                    className="relative flex flex-col items-center justify-start h-14 group focus:outline-none pointer-events-auto"
+                    className="relative flex flex-col items-center justify-start h-11 group focus:outline-none pointer-events-auto"
                   >
                     <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${
+                      className={`flex items-center justify-center w-7 h-7 rounded-[10px] transition-all duration-300 ${
                         isSelected
                           ? "bg-foreground text-background font-bold shadow-lg scale-110"
                           : isToday
@@ -170,13 +170,13 @@ export default function CalendarView({
                             : "text-foreground group-hover:bg-accent/50"
                       }`}
                     >
-                      <span className="text-[14px]">{day}</span>
+                      <span className="text-[13px]">{day}</span>
                     </div>
                     {/* Indicator container with fixed height to prevent layout shift */}
-                    <div className="h-4 flex items-center justify-center mt-1">
+                    <div className="h-3 flex items-center justify-center mt-0.5">
                       {!isSelected && hasTasks && (
                         <div
-                          className={`w-1 h-1 rounded-full ${isToday ? "bg-foreground" : "bg-muted"}`}
+                          className={`w-0.5 h-0.5 rounded-full ${isToday ? "bg-foreground" : "bg-muted"}`}
                         />
                       )}
                     </div>

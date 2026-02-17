@@ -5,7 +5,9 @@ self.addEventListener("push", function (event) {
       body: data.body,
       icon: "/whattodo/icon-192.png",
       badge: "/whattodo/badge.png",
-      vibrate: [100, 50, 100],
+      vibrate: [200, 100, 200], // 더 강한 진동 피드백
+      tag: "whattodo-reminder-" + Date.now(), // 알림이 중복되더라도 개별적으로 쌓이게 설정
+      renotify: true, // 새로운 알림이 올 때마다 소리/진동 발생 시도
       data: {
         url: data.url || "/whattodo/",
       },
