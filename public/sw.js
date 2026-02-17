@@ -19,5 +19,26 @@ self.addEventListener("push", function (event) {
 
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
-  event.waitUntil(clients.openWindow(event.notification.data.url));
+  const urlToOpen = event.notification.data.url;
+
+  event.waitUntil(
+    clients
+      .matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      })
+      .then(function (clientList) {
+        // 이미 열려있는 탭이 있으면 해당 탭으로 이동하고 탐색
+        for (let i = 0; i < clientList.length; i++) {
+          let client = clientList[i];
+          if (client.url.includes("/whattodo") && "navigate" in client) {
+            return client.navigate(urlToOpen).then((c) => c.focus());
+          }
+        }
+        // 열린 탭이 없으면 새 창 열기
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      }),
+  );
 });

@@ -62,7 +62,7 @@ def send_daily_reminders():
                 data=json.dumps({
                     "title": "🔔 내일 마감 할 일!",
                     "body": content,
-                    "url": "/whattodo/"
+                    "url": f"/whattodo/?view=calendar&date={tomorrow}"
                 }),
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS,

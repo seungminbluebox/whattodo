@@ -120,6 +120,22 @@ export default function Home() {
   }, [useDeadline]);
 
   useEffect(() => {
+    // URL 파라미터 확인 (알림 클릭 등으로 들어왔을 때)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get("view");
+      const d = params.get("date");
+
+      if (v === "calendar") {
+        handleViewChange("calendar");
+        if (d) {
+          setSelectedDate(d);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     let pushInitialized = false;
 
     async function handlePushSync(userId: string) {
