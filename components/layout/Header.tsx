@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "framer-motion";
 import { Category } from "@/store/useTodoStore";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
@@ -30,9 +31,19 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-medium tracking-tight transition-opacity ${view === "category" ? "text-foreground" : "text-foreground/30 hover:text-foreground/60"}`}
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
+            view === "category"
+              ? "text-foreground"
+              : "text-muted hover:text-foreground/70"
+          }`}
         >
           category
+          {view === "category" && (
+            <motion.div
+              layoutId="header-dot"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full"
+            />
+          )}
         </button>
         <button
           onClick={() => {
@@ -40,9 +51,19 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-medium tracking-tight transition-opacity ${view === "calendar" ? "text-foreground" : "text-foreground/30 hover:text-foreground/60"}`}
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
+            view === "calendar"
+              ? "text-foreground"
+              : "text-muted hover:text-foreground/70"
+          }`}
         >
           calendar
+          {view === "calendar" && (
+            <motion.div
+              layoutId="header-dot"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full"
+            />
+          )}
         </button>
         <button
           onClick={() => {
@@ -50,9 +71,19 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-medium tracking-tight transition-opacity ${view === "trash" ? "text-foreground" : "text-foreground/30 hover:text-foreground/60"}`}
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
+            view === "trash"
+              ? "text-foreground"
+              : "text-muted hover:text-foreground/70"
+          }`}
         >
           trash
+          {view === "trash" && (
+            <motion.div
+              layoutId="header-dot"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full"
+            />
+          )}
         </button>
       </div>
 
@@ -63,7 +94,7 @@ export default function Header({
               setIsEditing(!isEditing);
               setEditingCatId(null);
             }}
-            className="text-[13px] font-normal tracking-tight text-foreground/20 hover:text-foreground/40 transition-colors lowercase shrink-0 mr-2"
+            className="text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors lowercase shrink-0 mr-3 px-2 py-1 rounded-md hover:bg-accent"
           >
             {isEditing ? "done" : "edit"}
           </button>

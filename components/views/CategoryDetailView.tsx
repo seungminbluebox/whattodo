@@ -1,6 +1,7 @@
 "use client";
 import { Todo, Category } from "@/store/useTodoStore";
 import TodoItem from "@/components/todo/TodoItem";
+import { ChevronLeft } from "lucide-react";
 
 interface CategoryDetailViewProps {
   activeCategory: Category;
@@ -41,9 +42,14 @@ export default function CategoryDetailView({
       <div className="flex items-start justify-between mb-2">
         <button
           onClick={onBack}
-          className="text-foreground/40 hover:text-foreground text-[15px] uppercase font-medium tracking-[0.2em] flex items-center gap-2 transition-colors"
+          className="flex items-center gap-1 text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors py-1 px-2 -ml-2 rounded-md hover:bg-accent group"
         >
-          <span className="text-[20px] leading-none mb-0.5">←</span> back
+          <ChevronLeft
+            size={14}
+            strokeWidth={2.5}
+            className="group-hover:-translate-x-0.5 transition-transform"
+          />
+          <span>카테고리</span>
         </button>
         <div className="flex flex-col items-end gap-1">
           <div className="text-foreground/40 text-[11px] tracking-widest font-bold uppercase">

@@ -48,17 +48,17 @@ export default function TodoItem({
         <div className="w-1 h-1 bg-foreground/20 rounded-full mt-[10px] mr-4 flex-shrink-0"></div>
         <div className="flex-grow flex items-start justify-between gap-4">
           <div className="flex flex-col min-w-0">
-            <p className="text-[14px] font-normal leading-relaxed text-foreground/50 break-words">
+            <p className="text-[14px] font-medium leading-relaxed text-foreground/80 break-words">
               {todo.content}
             </p>
             <div className="flex items-center gap-2 mt-1">
               {category && (
-                <span className="text-[10px] text-foreground/20 uppercase tracking-[0.1em] font-medium">
+                <span className="text-[10px] text-muted uppercase tracking-[0.1em] font-bold">
                   {category.name}
                 </span>
               )}
               {todo.due_date && (
-                <span className="text-[10px] text-foreground/20 uppercase tracking-[0.1em] font-medium">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-[0.1em] font-medium bg-secondary/30 px-1.5 py-0.5 rounded">
                   {new Date(todo.due_date).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -70,14 +70,14 @@ export default function TodoItem({
           <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onRestore?.(todo.id, todo.content)}
-              className="p-2 text-foreground/40 hover:text-foreground transition-colors"
+              className="p-2 text-muted hover:text-foreground transition-colors bg-accent/50 rounded-full"
               title="Restore"
             >
               <RotateCcw size={16} strokeWidth={1.5} />
             </button>
             <button
               onClick={() => onPermanentDelete?.(todo.id)}
-              className="p-2 text-red-500/50 hover:text-red-500 transition-colors"
+              className="p-2 text-red-500/70 hover:text-red-500 transition-colors bg-red-500/5 rounded-full"
               title="Permanently Delete"
             >
               <Trash2 size={16} strokeWidth={1.5} />
@@ -101,22 +101,26 @@ export default function TodoItem({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className="flex items-start group"
+      className="flex items-start group py-3 px-2 rounded-xl hover:bg-accent/30 transition-colors"
     >
       <button
         onClick={() => onToggle?.(todo.id, todo.is_completed)}
-        className={`w-4 h-4 rounded-full border border-border mt-[3px] mr-3 flex-shrink-0 flex items-center justify-center hover:border-foreground transition-colors ${todo.is_completed ? "bg-foreground/10" : ""}`}
+        className={`w-5 h-5 rounded-full border-2 border-border mt-[2px] mr-4 flex-shrink-0 flex items-center justify-center transition-all ${
+          todo.is_completed
+            ? "bg-foreground border-foreground scale-95"
+            : "bg-transparent hover:border-foreground/50"
+        }`}
       >
-        <div
-          className={`w-1.5 h-1.5 rounded-full transition-all ${todo.is_completed ? "bg-foreground" : "bg-foreground/0 group-hover:bg-foreground/10"}`}
-        ></div>
+        {todo.is_completed && (
+          <div className="w-1.5 h-1.5 rounded-full bg-background"></div>
+        )}
       </button>
       <div className="flex-grow flex items-start justify-between">
-        <div className="flex flex-col flex-grow">
+        <div className="flex flex-col flex-grow min-w-0">
           {isEditing ? (
             <input
               autoFocus
-              className="bg-transparent border-none outline-none text-[14px] font-normal leading-relaxed text-foreground w-full p-0 focus:ring-0"
+              className="bg-transparent border-none outline-none text-[15px] font-medium leading-relaxed text-foreground w-full p-0 focus:ring-0"
               value={editingContent}
               onChange={(e) => setEditingContent?.(e.target.value)}
               onBlur={() => onUpdateContent?.(todo.id)}
@@ -135,45 +139,45 @@ export default function TodoItem({
                   onEdit(todo.id, todo.content);
                 }
               }}
-              className={`text-[14px] font-normal leading-relaxed cursor-text flex items-center gap-2 ${
+              className={`text-[15px] font-medium leading-relaxed cursor-text flex items-center gap-2 transition-all ${
                 todo.is_completed
-                  ? "text-foreground/30 line-through decoration-foreground/30"
-                  : "text-foreground/90"
+                  ? "text-muted line-through decoration-muted/50"
+                  : "text-foreground"
               }`}
             >
               {todo.content}
               {todo.is_recurring && (
-                <Repeat size={10} className="text-foreground/30" />
+                <Repeat size={12} className="text-muted/60" strokeWidth={2} />
               )}
             </p>
           )}
           {todo.due_date && !todo.is_completed && (
-            <div className="flex items-center gap-2 mt-1.5 overflow-hidden">
-              <span className="text-[10px] text-foreground/30 uppercase tracking-[0.1em] font-medium whitespace-nowrap">
+            <div className="flex items-center gap-1 mt-2.5">
+              <span className="text-[10px] text-muted-foreground/60 uppercase tracking-[0.15em] font-bold bg-accent px-1.5 py-0.5 rounded">
                 {new Date(todo.due_date).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                 })}
               </span>
               <span
-                className={`text-[9px] uppercase tracking-[0.2em] font-bold px-1.5 py-0.5 rounded-sm whitespace-nowrap ml-3 ${
-                  diffDays <= 3
+                className={`text-[9px] uppercase tracking-[0.2em] font-black px-1.5 py-0.5 rounded-sm ml-2 ${
+                  diffDays < 0
                     ? "text-red-500 bg-red-500/10"
                     : diffDays === 0
-                      ? "text-foreground/80 bg-foreground/5"
-                      : "text-foreground/20"
+                      ? "text-foreground bg-foreground/5 dark:bg-foreground/10"
+                      : "text-muted bg-accent/50"
                 }`}
               >
                 {diffDays === 0
                   ? "today"
                   : diffDays > 0
-                    ? `d-${diffDays}`
-                    : `d+${Math.abs(diffDays)}`}
+                    ? `D-${diffDays}`
+                    : `D+${Math.abs(diffDays)}`}
               </span>
             </div>
           )}
           {todo.due_date && todo.is_completed && (
-            <span className="text-[10px] text-foreground/10 uppercase tracking-[0.1em] font-medium mt-1">
+            <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.1em] font-medium mt-1">
               {new Date(todo.due_date).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -187,7 +191,7 @@ export default function TodoItem({
               onDelete?.(todo.id);
             }
           }}
-          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-2 text-red-500/50 hover:text-red-500 transition-all ml-4"
+          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-2 text-muted hover:text-red-500 transition-all ml-4 bg-accent/30 rounded-full"
           title="Delete"
         >
           <Trash2 size={16} strokeWidth={1.5} />

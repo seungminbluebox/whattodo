@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -32,8 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+    <html lang="ko" suppressHydrationWarning>
+      <head>
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin=""
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
+      </head>
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

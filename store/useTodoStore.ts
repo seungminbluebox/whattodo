@@ -30,7 +30,7 @@ interface TodoState {
   categories: Category[];
   fetchTodos: () => Promise<void>;
   fetchCategories: () => Promise<void>;
-  syncRecurringTasks: () => Promise<void>;
+  syncRecurringTasks: (baseDate?: string | Date) => Promise<void>;
   addTodo: (todo: Partial<Todo>) => Promise<void>;
   updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>;
   toggleTodo: (id: string, is_completed: boolean) => Promise<void>;

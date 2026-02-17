@@ -65,9 +65,9 @@ export default function CalendarView({
           onClick={() =>
             setSelectedDate(new Date().toISOString().split("T")[0])
           }
-          className="text-[11px] font-medium text-foreground uppercase tracking-[0.4em] hover:opacity-60 transition-opacity"
+          className="text-[12px] font-bold text-foreground uppercase tracking-[0.1em] hover:opacity-60 transition-opacity"
         >
-          {daysInMonth.year}/{String(daysInMonth.month + 1).padStart(2, "0")}
+          {daysInMonth.year}년 {daysInMonth.month + 1}월
         </button>
         <button
           onClick={() => changeMonth(1)}
@@ -105,24 +105,26 @@ export default function CalendarView({
               opacity: { duration: 0.2 },
             }}
           >
-            <div className="grid grid-cols-7 gap-y-2 text-center pointer-events-none">
+            <div className="grid grid-cols-7 gap-y-4 text-center pointer-events-none">
               {["S", "m", "t", "w", "t", "f", "s"].map((d, i) => (
                 <div
                   key={`${d}-${i}`}
-                  className="text-[9px] font-medium text-foreground/20 uppercase tracking-widest pb-4"
+                  className="text-[10px] font-black text-muted uppercase tracking-[0.3em] pb-6"
                 >
                   {d}
                 </div>
               ))}
 
               {Array.from({ length: daysInMonth.firstDay }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-12"></div>
+                <div key={`empty-${i}`} className="h-14"></div>
               ))}
 
               {Array.from({ length: daysInMonth.lastDate }).map((_, i) => {
                 const day = i + 1;
                 const dateStr = `${daysInMonth.year}-${String(daysInMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                 const isSelected = selectedDate === dateStr;
+                const isToday =
+                  new Date().toISOString().split("T")[0] === dateStr;
                 const hasTasks = todos.some(
                   (t) => t.due_date === dateStr && !t.is_deleted,
                 );
@@ -131,21 +133,25 @@ export default function CalendarView({
                   <button
                     key={day}
                     onClick={() => setSelectedDate(dateStr)}
-                    className="relative flex flex-col items-center justify-start h-12 group focus:outline-none pointer-events-auto"
+                    className="relative flex flex-col items-center justify-start h-14 group focus:outline-none pointer-events-auto"
                   >
                     <div
-                      className={`flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 ${
+                      className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${
                         isSelected
-                          ? "bg-foreground text-background font-semibold"
-                          : "text-foreground/40 group-hover:text-foreground/70"
+                          ? "bg-foreground text-background font-bold shadow-lg scale-110"
+                          : isToday
+                            ? "bg-accent text-foreground font-bold"
+                            : "text-foreground group-hover:bg-accent/50"
                       }`}
                     >
-                      <span className="text-[13px]">{day}</span>
+                      <span className="text-[14px]">{day}</span>
                     </div>
                     {/* Indicator container with fixed height to prevent layout shift */}
-                    <div className="h-4 flex items-center justify-center">
+                    <div className="h-4 flex items-center justify-center mt-1">
                       {!isSelected && hasTasks && (
-                        <div className="w-1 h-1 bg-foreground/70 rounded-full shadow-[0_0_3px_rgba(255,255,255,0.4)]"></div>
+                        <div
+                          className={`w-1 h-1 rounded-full ${isToday ? "bg-foreground" : "bg-muted"}`}
+                        />
                       )}
                     </div>
                   </button>

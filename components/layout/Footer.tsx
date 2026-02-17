@@ -1,6 +1,13 @@
 "use client";
 import React from "react";
-import { Plus, ChevronLeft, ChevronRight, FolderPlus } from "lucide-react";
+import {
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  FolderPlus,
+  Calendar,
+  Repeat,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Category } from "@/store/useTodoStore";
 import { supabase } from "@/lib/supabase";
@@ -70,16 +77,16 @@ export default function Footer({
       <div className="space-y-6">
         {view !== "trash" && (
           <form onSubmit={handleAddTodo} className="space-y-6">
-            <div className="flex flex-col border border-border bg-foreground/5 rounded-2xl p-4 focus-within:border-foreground/40 focus-within:bg-foreground/10 transition-all">
+            <div className="flex flex-col border-2 border-border bg-card rounded-2xl p-5 focus-within:border-foreground/20 focus-within:shadow-lg transition-all shadow-sm">
               <div className="flex items-center justify-between gap-4">
                 <input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-[15px] focus:ring-0 placeholder:text-foreground/40 text-foreground font-light p-0 transition-all"
+                  className="flex-1 bg-transparent border-none text-[16px] focus:ring-0 placeholder:text-muted/60 text-foreground font-medium p-0 transition-all"
                   placeholder={
                     view === "calendar"
-                      ? `New task for ${monthName.slice(0, 3)} ${new Date(selectedDate).getDate()}...`
-                      : "Add a new task..."
+                      ? `Task for ${monthName.slice(0, 3)} ${new Date(selectedDate).getDate()}...`
+                      : "Add a task..."
                   }
                   type="text"
                 />
@@ -90,31 +97,30 @@ export default function Footer({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       type="submit"
-                      className="text-foreground hover:text-foreground/80 transition-colors shrink-0"
+                      className="text-background bg-foreground px-3 py-1.5 rounded-xl font-bold text-xs hover:opacity-90 transition-all"
                     >
-                      <Plus size={18} strokeWidth={2} />
+                      ADD
                     </motion.button>
                   )}
                 </AnimatePresence>
               </div>
 
-              <div className="flex items-center gap-4 mt-3 h-4">
+              <div className="flex items-center gap-5 mt-4 h-5">
                 {view !== "calendar" && (
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setShowDatePicker(!showDatePicker)}
-                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${useDeadline ? "text-foreground" : "text-foreground/40 hover:text-foreground/60"}`}
+                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.1em] transition-all flex items-center gap-2 border ${
+                        useDeadline
+                          ? "bg-accent text-foreground border-accent"
+                          : "bg-foreground/5 text-foreground/40 border-transparent hover:border-border hover:bg-foreground/10"
+                      }`}
                     >
-                      <div
-                        className={`w-1 h-1 rounded-full ${useDeadline ? "bg-foreground" : "bg-transparent border border-foreground/40"}`}
-                      ></div>
+                      <Calendar size={12} strokeWidth={2.5} />
                       {useDeadline
-                        ? new Date(selectedDate).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })
-                        : "set date"}
+                        ? `${new Date(selectedDate).getMonth() + 1}월 ${new Date(selectedDate).getDate()}일`
+                        : "날짜 선택"}
                     </button>
                     {showDatePicker && (
                       <div
@@ -147,9 +153,9 @@ export default function Footer({
                                     new Date().toISOString().split("T")[0],
                                   )
                                 }
-                                className="text-[14px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-60 transition-opacity"
+                                className="text-[14px] font-bold tracking-[0.1em] text-foreground hover:opacity-60 transition-opacity"
                               >
-                                {monthName} {daysInMonth.year}
+                                {daysInMonth.year}년 {daysInMonth.month + 1}월
                               </button>
                             </div>
                             <button
@@ -242,9 +248,9 @@ export default function Footer({
                                 setUseDeadline(true);
                                 setShowDatePicker(false);
                               }}
-                              className="w-full py-3.5 text-xs font-bold uppercase tracking-widest rounded-2xl transition-all bg-foreground text-black mb-2"
+                              className="w-full py-3.5 text-sm font-bold rounded-2xl transition-all bg-foreground text-background mb-2"
                             >
-                              Select Date
+                              날짜 선택 완료
                             </button>
                             <button
                               type="button"
@@ -252,9 +258,9 @@ export default function Footer({
                                 setUseDeadline(false);
                                 setShowDatePicker(false);
                               }}
-                              className="w-full py-3 text-[10px] font-bold uppercase tracking-widest text-foreground/40 hover:text-foreground/60 transition-colors"
+                              className="w-full py-3 text-xs font-bold text-foreground/40 hover:text-foreground transition-colors"
                             >
-                              Set as Someday
+                              날짜 없이 추가 (언젠가)
                             </button>
                           </div>
                         </div>
@@ -267,12 +273,16 @@ export default function Footer({
                     <button
                       type="button"
                       onClick={() => setIsRecurring(!isRecurring)}
-                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${isRecurring ? "text-foreground" : "text-foreground/40 hover:text-foreground/60"}`}
+                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.1em] transition-all flex items-center gap-1.5 border ${
+                        isRecurring
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/5 text-foreground/40 border-transparent hover:border-border hover:bg-foreground/10"
+                      }`}
                     >
                       <div
-                        className={`w-1 h-1 rounded-full ${isRecurring ? "bg-foreground" : "bg-transparent border border-foreground/40"}`}
+                        className={`w-1 h-1 rounded-full ${isRecurring ? "bg-background" : "bg-foreground/20"}`}
                       ></div>
-                      {isRecurring ? "monthly" : "one-time"}
+                      {isRecurring ? "매달 반복" : "일회성"}
                     </button>
                   </div>
                 )}
@@ -281,14 +291,18 @@ export default function Footer({
                     <button
                       type="button"
                       onClick={() => setShowCatMenu(!showCatMenu)}
-                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${selectedCatId ? "text-foreground" : "text-foreground/40 hover:text-foreground/60"}`}
+                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.1em] transition-all flex items-center gap-1.5 border ${
+                        selectedCatId
+                          ? "bg-accent text-foreground border-accent"
+                          : "bg-foreground/5 text-foreground/40 border-transparent hover:border-border hover:bg-foreground/10"
+                      }`}
                     >
                       <div
-                        className={`w-1 h-1 rounded-full ${selectedCatId ? "bg-foreground" : "bg-transparent border border-foreground/40"}`}
+                        className={`w-1 h-1 rounded-full ${selectedCatId ? "bg-foreground" : "bg-foreground/20"}`}
                       ></div>
                       {selectedCatId
                         ? categories.find((c) => c.id === selectedCatId)?.name
-                        : "select category"}
+                        : "카테고리 선택"}
                     </button>
                     {showCatMenu && (
                       <>
@@ -304,9 +318,9 @@ export default function Footer({
                                 setSelectedCatId(null);
                                 setShowCatMenu(false);
                               }}
-                              className="w-full text-left p-2 text-[11px] text-foreground/40 hover:text-foreground transition-all lowercase"
+                              className="w-full text-left p-2 text-[11px] text-foreground/40 hover:text-foreground transition-all"
                             >
-                              no category
+                              카테고리 없음
                             </button>
                             {categories.map((cat) => (
                               <button
@@ -346,8 +360,8 @@ export default function Footer({
                         handleAddCategory(e);
                       }
                     }}
-                    placeholder="create new category..."
-                    className="bg-transparent border-none p-0 text-[13px] font-medium tracking-tight text-foreground/50 focus:ring-0 placeholder:text-foreground/40 lowercase flex-1 min-w-0"
+                    placeholder="새 카테고리 이름..."
+                    className="bg-transparent border-none p-0 text-[13px] font-medium tracking-tight text-foreground/50 focus:ring-0 placeholder:text-foreground/40 flex-1 min-w-0"
                   />
                   <AnimatePresence>
                     {newCatName.trim() && (
