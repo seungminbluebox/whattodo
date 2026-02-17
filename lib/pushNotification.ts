@@ -78,18 +78,25 @@ export async function subscribeToPush(userId: string) {
 
     // Supabase에 저장
     console.log("subscribeToPush phase 9: upserting to Supabase...");
-    const { data, error } = await supabase.from("push_subscriptions").upsert(
-      {
-        user_id: userId,
-        subscription: subscription.toJSON(),
-      },
-      { onConflict: "user_id" },
-    );
+    try {
+      const { data, error } = await supabase.from("push_subscriptions").upsert(
+        {
+          user_id: userId,
+          subscription: subscription.toJSON(),
+        },
+        { onConflict: "user_id" },
+      );
 
-    if (error) {
-      console.error("Supabase upsert error (detail):", error);
-    } else {
-      console.log("Successfully saved/updated subscription in DB! 🎉", data);
+      if (error) {
+        console.error("Supabase upsert failure (returned error):", error);
+        alert("DB 저장 실패: " + error.message);
+      } else {
+        console.log("Successfully saved/updated subscription in DB! 🎉", data);
+        alert("알림 설정이 완료되었습니다! 🔔");
+      }
+    } catch (dbError) {
+      console.error("Critical error during DB upsert:", dbError);
+      alert("DB 연결 중 예상치 못한 오류가 발생했습니다.");
     }
 
     return subscription;

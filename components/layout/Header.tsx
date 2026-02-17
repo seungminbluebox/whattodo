@@ -102,19 +102,34 @@ export default function Header({
           </button>
         )}
         <button
-          onClick={async () => {
-            const {
-              data: { user },
-            } = await supabase.auth.getUser();
-            if (user) {
-              console.log(
-                "Manual push subscription triggered for user:",
-                user.id,
-              );
-              await registerServiceWorker();
-              await subscribeToPush(user.id);
-            } else {
-              alert("Login required");
+          onClick={async (e) => {
+            const btn = e.currentTarget;
+            btn.style.opacity = "0.5";
+            btn.style.pointerEvents = "none";
+
+            try {
+              const {
+                data: { user },
+              } = await supabase.auth.getUser();
+              if (user) {
+                console.log("Starting push registration for user:", user.id);
+                const reg = await registerServiceWorker();
+                if (reg) {
+                  await subscribeToPush(user.id);
+                } else {
+                  alert(
+                    "서비스 워커를 등록할 수 없습니다. (HTTPS 환경인지 확인하세요)",
+                  );
+                }
+              } else {
+                alert("먼저 로그인해 주세요.");
+              }
+            } catch (err) {
+              console.error("Button click error:", err);
+              alert("에러: " + err);
+            } finally {
+              btn.style.opacity = "1";
+              btn.style.pointerEvents = "auto";
             }
           }}
           className="p-1.5 text-muted hover:text-foreground transition-all rounded-md hover:bg-accent/50 mr-1"
