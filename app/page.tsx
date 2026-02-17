@@ -13,6 +13,7 @@ import TrashView from "@/components/views/TrashView";
 import CategoryList from "@/components/todo/CategoryList";
 import CategoryDetailView from "@/components/views/CategoryDetailView";
 import CalendarView from "@/components/views/CalendarView";
+import { registerServiceWorker, subscribeToPush } from "@/lib/pushNotification";
 
 const VIEWS = ["category", "calendar", "trash"] as const;
 type ViewType = (typeof VIEWS)[number];
@@ -121,12 +122,22 @@ export default function Home() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        registerServiceWorker().then(() => {
+          subscribeToPush();
+        });
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        registerServiceWorker().then(() => {
+          subscribeToPush();
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
