@@ -24,7 +24,10 @@ export async function registerServiceWorker() {
   }
 }
 
-export async function subscribeToPush(userId: string) {
+export async function subscribeToPush(
+  userId: string,
+  isManual: boolean = false,
+) {
   console.log("subscribeToPush phase 1: starting for user", userId);
   try {
     // navigator.serviceWorker.ready가 가끔 무한 대기할 수 있으므로, getRegistration()을 시도합니다.
@@ -46,14 +49,16 @@ export async function subscribeToPush(userId: string) {
       return;
     }
 
-    // 알림 권한 요청 (브라우저 정책상 사용자 인터랙션 후에만 뜰 수 있음)
-    console.log("subscribeToPush phase 3: requesting permission...");
-    const permission = await Notification.requestPermission();
-    console.log("subscribeToPush phase 4: permission status", permission);
+    if (isManual) {
+      // 알림 권한 요청 (수동 클릭 시에만 요청)
+      console.log("subscribeToPush phase 3: requesting permission...");
+      const permission = await Notification.requestPermission();
+      console.log("subscribeToPush phase 4: permission status", permission);
 
-    if (permission !== "granted") {
-      console.warn("Permission not granted. Status:", permission);
-      return;
+      if (permission !== "granted") {
+        console.warn("Permission not granted. Status:", permission);
+        return;
+      }
     }
 
     // 기존 구독 확인
@@ -65,6 +70,10 @@ export async function subscribeToPush(userId: string) {
     );
 
     if (!subscription) {
+      if (!isManual) {
+        console.log("Silent skip: no existing subscription and not manual.");
+        return;
+      }
       console.log(
         "subscribeToPush phase 7: creating new subscription with key:",
         VAPID_PUBLIC_KEY,
@@ -76,7 +85,6 @@ export async function subscribeToPush(userId: string) {
       console.log("subscribeToPush phase 8: new subscription created");
     }
 
-    // Supabase에 저장
     // Supabase에 저장
     console.log("subscribeToPush phase 9: upserting to Supabase...");
 
@@ -93,14 +101,15 @@ export async function subscribeToPush(userId: string) {
 
       if (response.error) {
         console.error("Supabase upsert failure:", response.error);
-        alert(`DB 저장 실패 (${response.status}): ` + response.error.message);
+        if (isManual)
+          alert(`DB 저장 실패 (${response.status}): ` + response.error.message);
       } else {
         console.log("Successfully saved/updated subscription in DB! 🎉");
-        alert("알림 설정이 완료되었습니다! 🔔");
+        if (isManual) alert("알림 설정이 완료되었습니다! 🔔");
       }
     } catch (dbError: any) {
       console.error("Critical error during DB upsert:", dbError);
-      alert("DB 연결 오류: " + (dbError.message || "연결 실패"));
+      if (isManual) alert("DB 연결 오류: " + (dbError.message || "연결 실패"));
     }
 
     return subscription;

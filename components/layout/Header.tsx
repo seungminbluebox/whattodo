@@ -63,10 +63,9 @@ export default function Header({
         // 알림 신청
         const reg = await registerServiceWorker();
         if (reg) {
-          const sub = await subscribeToPush(user.id);
+          const sub = await subscribeToPush(user.id, true);
           if (sub) {
             setIsSubscribed(true);
-            // subscribeToPush 내부에서 이미 alert를 띄우므로 여기선 생략
           }
         } else {
           alert("서비스 워커를 지원하지 않는 브라우저입니다.");
