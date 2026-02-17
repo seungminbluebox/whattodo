@@ -2,6 +2,8 @@
 import { motion } from "framer-motion";
 import { Category } from "@/store/useTodoStore";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { subscribeToPush, registerServiceWorker } from "@/lib/pushNotification";
+import { supabase } from "@/lib/supabase";
 
 interface HeaderProps {
   view: "category" | "calendar" | "trash";
@@ -99,6 +101,40 @@ export default function Header({
             {isEditing ? "done" : "edit"}
           </button>
         )}
+        <button
+          onClick={async () => {
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
+            if (user) {
+              console.log(
+                "Manual push subscription triggered for user:",
+                user.id,
+              );
+              await registerServiceWorker();
+              await subscribeToPush(user.id);
+            } else {
+              alert("Login required");
+            }
+          }}
+          className="p-1.5 text-muted hover:text-foreground transition-all rounded-md hover:bg-accent/50 mr-1"
+          aria-label="Toggle notifications"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+          </svg>
+        </button>
         <ThemeToggle />
       </div>
     </header>

@@ -120,23 +120,42 @@ export default function Home() {
   }, [useDeadline]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function initPush() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        registerServiceWorker().then(() => {
-          subscribeToPush();
-        });
+        console.log(
+          "Session found, initializing push for user:",
+          session.user.id,
+        );
+        const registration = await registerServiceWorker();
+        if (registration) {
+          console.log(
+            "Service Worker registered, now subscribing flow starting...",
+          );
+          const sub = await subscribeToPush(session.user.id);
+          console.log("Push subscription result object:", sub);
+        } else {
+          console.error(
+            "Skip push subscription: Service Worker registration failed",
+          );
+        }
       }
-    });
+    }
+
+    initPush();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        registerServiceWorker().then(() => {
-          subscribeToPush();
-        });
+        console.log("Auth state changed, user:", session.user.id);
+        await registerServiceWorker();
+        await subscribeToPush(session.user.id);
       }
     });
 
