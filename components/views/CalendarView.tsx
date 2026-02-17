@@ -119,11 +119,11 @@ export default function CalendarView({
             dragMomentum={false}
             className="touch-pan-y"
             onDragEnd={(_, info) => {
-              const threshold = 10;
+              const threshold = 25;
               const velocity = info.velocity.x;
               const offset = info.offset.x;
 
-              if (offset > threshold || velocity > 50) {
+              if (offset > threshold || velocity > 200) {
                 changeMonth(-1);
               } else if (offset < -threshold || velocity < -50) {
                 changeMonth(1);
