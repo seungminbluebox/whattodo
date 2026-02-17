@@ -78,8 +78,21 @@ export async function subscribeToPush(userId: string) {
 
     // Supabase에 저장
     console.log("subscribeToPush phase 9: upserting to Supabase...");
+    console.log(
+      "Supabase URL:",
+      process.env.NEXT_PUBLIC_SUPABASE_URL ? "Exists" : "MISSING",
+    );
+
+    // 타임아웃 10초 설정
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Supabase response timeout (10s)")),
+        10000,
+      ),
+    );
+
     try {
-      const { data, error } = await supabase.from("push_subscriptions").upsert(
+      const upsertPromise = supabase.from("push_subscriptions").upsert(
         {
           user_id: userId,
           subscription: subscription.toJSON(),
@@ -87,16 +100,22 @@ export async function subscribeToPush(userId: string) {
         { onConflict: "user_id" },
       );
 
+      // 타임아웃과 실제 요청 중 먼저 끝나는 쪽을 처리
+      const { data, error }: any = await Promise.race([
+        upsertPromise,
+        timeoutPromise,
+      ]);
+
       if (error) {
-        console.error("Supabase upsert failure (returned error):", error);
+        console.error("Supabase upsert failure:", error);
         alert("DB 저장 실패: " + error.message);
       } else {
         console.log("Successfully saved/updated subscription in DB! 🎉", data);
         alert("알림 설정이 완료되었습니다! 🔔");
       }
-    } catch (dbError) {
+    } catch (dbError: any) {
       console.error("Critical error during DB upsert:", dbError);
-      alert("DB 연결 중 예상치 못한 오류가 발생했습니다.");
+      alert("DB 연결 오류: " + (dbError.message || "연결 실패"));
     }
 
     return subscription;
