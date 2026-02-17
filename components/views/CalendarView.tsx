@@ -30,18 +30,31 @@ interface CalendarViewProps {
 
 const variants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 100 : -100,
+    x: direction > 0 ? 20 : -20,
     opacity: 0,
+    filter: "blur(2px)",
+    scale: 0.99,
   }),
   center: {
     x: 0,
     opacity: 1,
+    filter: "blur(0px)",
+    scale: 1,
   },
   exit: (direction: number) => ({
-    x: direction < 0 ? 100 : -100,
+    x: direction > 0 ? -20 : 20,
     opacity: 0,
+    filter: "blur(2px)",
+    scale: 0.99,
   }),
 };
+
+const springTransition = {
+  x: { type: "spring", stiffness: 800, damping: 60, mass: 0.4 },
+  opacity: { duration: 0.12, ease: "easeOut" },
+  filter: { duration: 0.12 },
+  scale: { type: "spring", stiffness: 800, damping: 60 },
+} as const;
 
 export default function CalendarView({
   selectedDate,
@@ -116,10 +129,7 @@ export default function CalendarView({
                 changeMonth(1);
               }
             }}
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
+            transition={springTransition}
           >
             <div className="grid grid-cols-7 gap-y-4 text-center select-none">
               {["S", "m", "t", "w", "t", "f", "s"].map((d, i) => (

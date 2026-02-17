@@ -78,31 +78,33 @@ export default function Footer({
         {view !== "trash" && (
           <form onSubmit={handleAddTodo} className="space-y-6">
             <div className="flex flex-col border-2 border-border bg-card rounded-2xl p-5 focus-within:border-foreground/20 focus-within:shadow-lg transition-all shadow-sm">
-              <div className="flex items-center justify-between gap-4">
-                <input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-[16px] focus:ring-0 placeholder:text-muted/60 text-foreground font-medium p-0 transition-all"
-                  placeholder={
-                    view === "calendar"
-                      ? `Task for ${monthName.slice(0, 3)} ${new Date(selectedDate).getDate()}...`
-                      : "Add a task..."
-                  }
-                  type="text"
-                />
-                <AnimatePresence>
-                  {inputValue.trim() && (
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      type="submit"
-                      className="text-background bg-foreground px-3 py-1.5 rounded-xl font-bold text-xs hover:opacity-90 transition-all"
-                    >
-                      ADD
-                    </motion.button>
-                  )}
-                </AnimatePresence>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 flex items-center gap-2 min-w-0">
+                  <input
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    className="flex-1 bg-transparent border-none text-[16px] focus:ring-0 placeholder:text-muted/60 text-foreground font-medium p-0 transition-all min-w-0"
+                    placeholder={
+                      view === "calendar"
+                        ? `Task for ${monthName.slice(0, 3)} ${new Date(selectedDate).getDate()}...`
+                        : "Add a task..."
+                    }
+                    type="text"
+                  />
+                  <AnimatePresence>
+                    {inputValue.trim() && (
+                      <motion.button
+                        initial={{ opacity: 0, scale: 0.8, x: -5 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, x: -5 }}
+                        type="submit"
+                        className="text-background bg-foreground p-1.5 rounded-xl font-bold hover:opacity-90 transition-all shrink-0 shadow-sm"
+                      >
+                        <Plus size={18} strokeWidth={2.5} />
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 mt-4 overflow-x-auto no-scrollbar flex-nowrap min-h-8">

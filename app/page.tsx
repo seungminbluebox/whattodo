@@ -19,18 +19,31 @@ type ViewType = (typeof VIEWS)[number];
 
 const mainViewVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 30 : -30,
+    x: direction > 0 ? 20 : -20,
     opacity: 0,
+    filter: "blur(2px)",
+    scale: 0.99,
   }),
   center: {
     x: 0,
     opacity: 1,
+    filter: "blur(0px)",
+    scale: 1,
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -30 : 30,
+    x: direction > 0 ? -20 : 20,
     opacity: 0,
+    filter: "blur(2px)",
+    scale: 0.99,
   }),
 };
+
+const viewTransition = {
+  x: { type: "spring", stiffness: 800, damping: 60, mass: 0.4 },
+  opacity: { duration: 0.12, ease: "easeOut" },
+  filter: { duration: 0.12 },
+  scale: { type: "spring", stiffness: 800, damping: 60 },
+} as const;
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
@@ -366,7 +379,7 @@ export default function Home() {
   return (
     <div className="bg-background min-h-screen text-foreground font-display selection:bg-foreground/20 overflow-x-hidden">
       <div className="h-12 w-full"></div>
-      <div className="flex flex-col h-[calc(100dvh-3rem)] max-w-md mx-auto px-5 sm:px-8 relative overflow-hidden">
+      <div className="flex flex-col h-[calc(100dvh-3rem)] max-w-md mx-auto px-5 sm:px-8 relative overflow-x-hidden">
         <Header
           view={view}
           setView={handleViewChange}
@@ -377,7 +390,7 @@ export default function Home() {
           setEditingCatId={setEditingCatId}
         />
 
-        <main className="flex-grow overflow-hidden relative">
+        <main className="flex-grow overflow-x-hidden relative">
           <motion.div
             className="h-full w-full touch-pan-y select-none"
             drag="x"
@@ -410,7 +423,7 @@ export default function Home() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  transition={viewTransition}
                   className="h-full overflow-y-auto no-scrollbar pb-60"
                 >
                   <TrashView
@@ -430,7 +443,7 @@ export default function Home() {
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    transition={viewTransition}
                     className="h-full overflow-y-auto no-scrollbar pb-70"
                   >
                     <CategoryList
@@ -450,10 +463,10 @@ export default function Home() {
                 ) : (
                   <motion.div
                     key={`category-${activeCategory.id}`}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: 15, filter: "blur(2px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, x: -15, filter: "blur(2px)" }}
+                    transition={viewTransition}
                     className="h-full overflow-y-auto no-scrollbar pb-60"
                   >
                     <CategoryDetailView
@@ -482,7 +495,7 @@ export default function Home() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.3 }}
+                  transition={viewTransition}
                   className="h-full overflow-y-auto no-scrollbar pb-50"
                 >
                   <CalendarView
