@@ -4,7 +4,7 @@ self.addEventListener("push", function (event) {
     const options = {
       body: data.body,
       icon: "/whattodo/icon-192.png",
-      badge: "/whattodo/icon-192.png",
+      badge: "/whattodo/badge.png",
       vibrate: [100, 50, 100],
       data: {
         url: data.url || "/whattodo/",
