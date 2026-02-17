@@ -14,11 +14,27 @@ import CategoryList from "@/components/todo/CategoryList";
 import CategoryDetailView from "@/components/views/CategoryDetailView";
 import CalendarView from "@/components/views/CalendarView";
 
+const VIEWS = ["category", "calendar", "trash"] as const;
+type ViewType = (typeof VIEWS)[number];
+
+const mainViewVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 30 : -30,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -30 : 30,
+    opacity: 0,
+  }),
+};
+
 export default function Home() {
   const [user, setUser] = useState<any>(null);
-  const [view, setView] = useState<"category" | "calendar" | "trash">(
-    "category",
-  );
+  const [view, setView] = useState<ViewType>("category");
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
@@ -40,6 +56,19 @@ export default function Home() {
     message: "",
     show: false,
   });
+
+  const handleViewChange = (newView: ViewType) => {
+    const currentIndex = VIEWS.indexOf(view);
+    const newIndex = VIEWS.indexOf(newView);
+    if (currentIndex !== newIndex) {
+      setDirection(newIndex > currentIndex ? 1 : -1);
+      setView(newView);
+      if (newView !== "category") {
+        setActiveCategory(null);
+        setIsEditing(false);
+      }
+    }
+  };
 
   const {
     todos,
@@ -289,12 +318,12 @@ export default function Home() {
     });
 
   return (
-    <div className="bg-black min-h-screen text-white font-display selection:bg-white/20">
+    <div className="bg-background min-h-screen text-foreground font-display selection:bg-foreground/20">
       <div className="h-12 w-full"></div>
       <div className="flex flex-col min-h-[calc(100dvh-3rem)] max-w-md mx-auto px-8 relative overflow-hidden">
         <Header
           view={view}
-          setView={setView}
+          setView={handleViewChange}
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
           isEditing={isEditing}
@@ -303,96 +332,125 @@ export default function Home() {
         />
 
         <main className="flex-grow overflow-hidden relative">
-          <AnimatePresence mode="wait">
-            {view === "trash" ? (
-              <motion.div
-                key="trash"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="h-full overflow-y-auto no-scrollbar pb-60"
-              >
-                <TrashView
-                  trashTodos={trashTodos}
-                  onEmptyTrash={handleEmptyTrash}
-                  onRestoreTodo={handleRestoreTodo}
-                  onPermanentDeleteTodo={permanentlyDeleteTodo}
-                />
-              </motion.div>
-            ) : view === "category" ? (
-              !activeCategory ? (
+          <motion.div
+            className="h-full w-full"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.05}
+            onDragEnd={(_, info) => {
+              if (activeCategory) return;
+              const threshold = 80;
+              const velocity = info.velocity.x;
+              const offset = info.offset.x;
+
+              if (offset > threshold || velocity > 500) {
+                const currentIndex = VIEWS.indexOf(view);
+                if (currentIndex > 0) handleViewChange(VIEWS[currentIndex - 1]);
+              } else if (offset < -threshold || velocity < -500) {
+                const currentIndex = VIEWS.indexOf(view);
+                if (currentIndex < VIEWS.length - 1)
+                  handleViewChange(VIEWS[currentIndex + 1]);
+              }
+            }}
+          >
+            <AnimatePresence mode="wait" custom={direction}>
+              {view === "trash" ? (
                 <motion.div
-                  key="categories"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  key="trash"
+                  custom={direction}
+                  variants={mainViewVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className="h-full overflow-y-auto no-scrollbar pb-60"
                 >
-                  <CategoryList
+                  <TrashView
+                    trashTodos={trashTodos}
                     categories={categories}
-                    activeTodos={activeTodos}
-                    isEditing={isEditing}
-                    editingCatId={editingCatId}
-                    editingCatName={editingCatName}
-                    setEditingCatId={setEditingCatId}
-                    setEditingCatName={setEditingCatName}
-                    setCategories={setCategories}
-                    onUpdateCategoryName={handleUpdateCategoryName}
-                    onDeleteCategory={handleDeleteCategory}
-                    onSelectCategory={handleSelectCategory}
+                    onEmptyTrash={handleEmptyTrash}
+                    onRestoreTodo={handleRestoreTodo}
+                    onPermanentDeleteTodo={permanentlyDeleteTodo}
                   />
                 </motion.div>
+              ) : view === "category" ? (
+                !activeCategory ? (
+                  <motion.div
+                    key="categories"
+                    custom={direction}
+                    variants={mainViewVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="h-full overflow-y-auto no-scrollbar pb-60"
+                  >
+                    <CategoryList
+                      categories={categories}
+                      activeTodos={activeTodos}
+                      isEditing={isEditing}
+                      editingCatId={editingCatId}
+                      editingCatName={editingCatName}
+                      setEditingCatId={setEditingCatId}
+                      setEditingCatName={setEditingCatName}
+                      setCategories={setCategories}
+                      onUpdateCategoryName={handleUpdateCategoryName}
+                      onDeleteCategory={handleDeleteCategory}
+                      onSelectCategory={handleSelectCategory}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={`category-${activeCategory.id}`}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="h-full overflow-y-auto no-scrollbar pb-60"
+                  >
+                    <CategoryDetailView
+                      activeCategory={activeCategory}
+                      onBack={handleBack}
+                      pendingInCat={pendingInCat}
+                      somedayInCat={somedayInCat}
+                      completedInCat={completedInCat}
+                      onToggleTodo={toggleTodo}
+                      onDeleteTodo={deleteTodo}
+                      editingTodoId={editingTodoId}
+                      setEditingTodoId={setEditingTodoId}
+                      editingTodoContent={editingTodoContent}
+                      setEditingTodoContent={setEditingTodoContent}
+                      onUpdateTodoContent={handleUpdateTodoContent}
+                    />
+                  </motion.div>
+                )
               ) : (
                 <motion.div
-                  key={`category-${activeCategory.id}`}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  key="calendar"
+                  custom={direction}
+                  variants={mainViewVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
                   className="h-full overflow-y-auto no-scrollbar pb-60"
                 >
-                  <CategoryDetailView
-                    activeCategory={activeCategory}
-                    onBack={handleBack}
-                    pendingInCat={pendingInCat}
-                    somedayInCat={somedayInCat}
-                    completedInCat={completedInCat}
+                  <CalendarView
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                    todos={todos}
+                    categories={categories}
+                    monthName={monthName}
+                    daysInMonth={daysInMonth}
+                    changeMonth={changeMonth}
                     onToggleTodo={toggleTodo}
                     onDeleteTodo={deleteTodo}
-                    editingTodoId={editingTodoId}
-                    setEditingTodoId={setEditingTodoId}
-                    editingTodoContent={editingTodoContent}
-                    setEditingTodoContent={setEditingTodoContent}
-                    onUpdateTodoContent={handleUpdateTodoContent}
+                    direction={direction}
                   />
                 </motion.div>
-              )
-            ) : (
-              <motion.div
-                key="calendar"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-                className="h-full overflow-y-auto no-scrollbar pb-60"
-              >
-                <CalendarView
-                  selectedDate={selectedDate}
-                  setSelectedDate={setSelectedDate}
-                  todos={todos}
-                  categories={categories}
-                  monthName={monthName}
-                  daysInMonth={daysInMonth}
-                  changeMonth={changeMonth}
-                  onToggleTodo={toggleTodo}
-                  onDeleteTodo={deleteTodo}
-                  direction={direction}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </main>
 
         <Footer

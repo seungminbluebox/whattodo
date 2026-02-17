@@ -1,5 +1,6 @@
 "use client";
 import { Category } from "@/store/useTodoStore";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface HeaderProps {
   view: "category" | "calendar" | "trash";
@@ -21,7 +22,7 @@ export default function Header({
   setEditingCatId,
 }: HeaderProps) {
   return (
-    <header className="flex justify-between items-center pt-4 pb-12 border-b border-white/20 w-full">
+    <header className="flex justify-between items-center pt-4 pb-12 border-b border-border w-full">
       <div className="flex gap-6">
         <button
           onClick={() => {
@@ -29,7 +30,7 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-medium tracking-tight transition-opacity ${view === "category" ? "text-white" : "text-white/30 hover:text-white/60"}`}
+          className={`text-sm font-medium tracking-tight transition-opacity ${view === "category" ? "text-foreground" : "text-foreground/30 hover:text-foreground/60"}`}
         >
           category
         </button>
@@ -39,7 +40,7 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-medium tracking-tight transition-opacity ${view === "calendar" ? "text-white" : "text-white/30 hover:text-white/60"}`}
+          className={`text-sm font-medium tracking-tight transition-opacity ${view === "calendar" ? "text-foreground" : "text-foreground/30 hover:text-foreground/60"}`}
         >
           calendar
         </button>
@@ -49,23 +50,26 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-medium tracking-tight transition-opacity ${view === "trash" ? "text-white" : "text-white/30 hover:text-white/60"}`}
+          className={`text-sm font-medium tracking-tight transition-opacity ${view === "trash" ? "text-foreground" : "text-foreground/30 hover:text-foreground/60"}`}
         >
           trash
         </button>
       </div>
 
-      {view === "category" && !activeCategory && (
-        <button
-          onClick={() => {
-            setIsEditing(!isEditing);
-            setEditingCatId(null);
-          }}
-          className="text-[13px] font-normal tracking-tight text-white/20 hover:text-white/40 transition-colors lowercase shrink-0"
-        >
-          {isEditing ? "done" : "edit"}
-        </button>
-      )}
+      <div className="flex items-center gap-1">
+        {view === "category" && !activeCategory && (
+          <button
+            onClick={() => {
+              setIsEditing(!isEditing);
+              setEditingCatId(null);
+            }}
+            className="text-[13px] font-normal tracking-tight text-foreground/20 hover:text-foreground/40 transition-colors lowercase shrink-0 mr-2"
+          >
+            {isEditing ? "done" : "edit"}
+          </button>
+        )}
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

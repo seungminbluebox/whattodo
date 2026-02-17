@@ -62,16 +62,16 @@ export default function Footer({
   handleAddCategory,
 }: FooterProps) {
   return (
-    <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-8 pb-4 pt-0 bg-black z-50">
+    <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-8 pb-4 pt-0 bg-background z-50">
       <div className="space-y-6">
         {view !== "trash" && (
           <form onSubmit={handleAddTodo} className="space-y-6">
-            <div className="flex flex-col border border-white/20 bg-[#111] rounded-2xl p-4 focus-within:border-white/40 focus-within:bg-[#1a1a1a] transition-all">
+            <div className="flex flex-col border border-border bg-foreground/5 rounded-2xl p-4 focus-within:border-foreground/40 focus-within:bg-foreground/10 transition-all">
               <div className="flex items-center justify-between gap-4">
                 <input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-[15px] focus:ring-0 placeholder:text-white/40 text-white font-light p-0 transition-all"
+                  className="flex-1 bg-transparent border-none text-[15px] focus:ring-0 placeholder:text-foreground/40 text-foreground font-light p-0 transition-all"
                   placeholder={
                     view === "calendar"
                       ? `New task for ${monthName.slice(0, 3)} ${new Date(selectedDate).getDate()}...`
@@ -86,7 +86,7 @@ export default function Footer({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       type="submit"
-                      className="text-white hover:text-white/80 transition-colors shrink-0"
+                      className="text-foreground hover:text-foreground/80 transition-colors shrink-0"
                     >
                       <Plus size={18} strokeWidth={2} />
                     </motion.button>
@@ -100,10 +100,10 @@ export default function Footer({
                     <button
                       type="button"
                       onClick={() => setShowDatePicker(!showDatePicker)}
-                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${useDeadline ? "text-white" : "text-white/40 hover:text-white/60"}`}
+                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${useDeadline ? "text-foreground" : "text-foreground/40 hover:text-foreground/60"}`}
                     >
                       <div
-                        className={`w-1 h-1 rounded-full ${useDeadline ? "bg-white" : "bg-transparent border border-white/40"}`}
+                        className={`w-1 h-1 rounded-full ${useDeadline ? "bg-foreground" : "bg-transparent border border-foreground/40"}`}
                       ></div>
                       {useDeadline
                         ? new Date(selectedDate).toLocaleDateString("en-US", {
@@ -114,14 +114,14 @@ export default function Footer({
                     </button>
                     {showDatePicker && (
                       <div
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm cursor-pointer"
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm cursor-pointer"
                         onClick={() => {
                           setUseDeadline(false);
                           setShowDatePicker(false);
                         }}
                       >
                         <div
-                          className="relative w-[340px] h-[500px] bg-[#0f0f0f] border border-white/20 rounded-[32px] shadow-2xl overflow-hidden flex flex-col p-6 animate-in fade-in zoom-in-95 duration-200 cursor-default"
+                          className="relative w-[340px] h-[500px] bg-background border border-border border border-border rounded-[32px] shadow-2xl overflow-hidden flex flex-col p-6 animate-in fade-in zoom-in-95 duration-200 cursor-default"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex justify-between items-center mb-6 shrink-0">
@@ -131,14 +131,22 @@ export default function Footer({
                                 e.stopPropagation();
                                 changeMonth(-1);
                               }}
-                              className="text-white/40 hover:text-white p-2 w-10 h-10 flex items-center justify-center transition-all bg-white/5 rounded-full"
+                              className="text-foreground/40 hover:text-foreground p-2 w-10 h-10 flex items-center justify-center transition-all bg-foreground/5 rounded-full"
                             >
                               <ChevronLeft size={18} />
                             </button>
                             <div className="flex-1 text-center">
-                              <span className="text-[14px] font-bold uppercase tracking-[0.2em] text-white">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setSelectedDate(
+                                    new Date().toISOString().split("T")[0],
+                                  )
+                                }
+                                className="text-[14px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-60 transition-opacity"
+                              >
                                 {monthName} {daysInMonth.year}
-                              </span>
+                              </button>
                             </div>
                             <button
                               type="button"
@@ -146,7 +154,7 @@ export default function Footer({
                                 e.stopPropagation();
                                 changeMonth(1);
                               }}
-                              className="text-white/40 hover:text-white p-2 w-10 h-10 flex items-center justify-center transition-all bg-white/5 rounded-full"
+                              className="text-foreground/40 hover:text-foreground p-2 w-10 h-10 flex items-center justify-center transition-all bg-foreground/5 rounded-full"
                             >
                               <ChevronRight size={18} />
                             </button>
@@ -185,7 +193,7 @@ export default function Footer({
                                     (d, i) => (
                                       <div
                                         key={`dp-${d}-${i}`}
-                                        className="h-8 flex items-center justify-center text-[9px] font-bold text-white/40 uppercase tracking-widest"
+                                        className="h-8 flex items-center justify-center text-[9px] font-bold text-foreground/40 uppercase tracking-widest"
                                       >
                                         {d}
                                       </div>
@@ -212,7 +220,7 @@ export default function Footer({
                                         onClick={() => {
                                           setSelectedDate(dateStr);
                                         }}
-                                        className={`h-9 text-[13px] rounded-xl transition-all flex items-center justify-center ${isSel ? "bg-white text-black font-bold scale-105" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
+                                        className={`h-9 text-[13px] rounded-xl transition-all flex items-center justify-center ${isSel ? "bg-foreground text-background font-bold scale-105" : "text-foreground/60 hover:bg-foreground/10 hover:text-foreground"}`}
                                       >
                                         {day}
                                       </button>
@@ -223,14 +231,14 @@ export default function Footer({
                             </AnimatePresence>
                           </div>
 
-                          <div className="mt-4 pt-6 border-t border-white/10 shrink-0">
+                          <div className="mt-4 pt-6 border-t border-border shrink-0">
                             <button
                               type="button"
                               onClick={() => {
                                 setUseDeadline(true);
                                 setShowDatePicker(false);
                               }}
-                              className="w-full py-3.5 text-xs font-bold uppercase tracking-widest rounded-2xl transition-all bg-white text-black mb-2"
+                              className="w-full py-3.5 text-xs font-bold uppercase tracking-widest rounded-2xl transition-all bg-foreground text-black mb-2"
                             >
                               Select Date
                             </button>
@@ -240,7 +248,7 @@ export default function Footer({
                                 setUseDeadline(false);
                                 setShowDatePicker(false);
                               }}
-                              className="w-full py-3 text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white/60 transition-colors"
+                              className="w-full py-3 text-[10px] font-bold uppercase tracking-widest text-foreground/40 hover:text-foreground/60 transition-colors"
                             >
                               Set as Someday
                             </button>
@@ -255,10 +263,10 @@ export default function Footer({
                     <button
                       type="button"
                       onClick={() => setShowCatMenu(!showCatMenu)}
-                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${selectedCatId ? "text-white" : "text-white/40 hover:text-white/60"}`}
+                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${selectedCatId ? "text-foreground" : "text-foreground/40 hover:text-foreground/60"}`}
                     >
                       <div
-                        className={`w-1 h-1 rounded-full ${selectedCatId ? "bg-white" : "bg-transparent border border-white/40"}`}
+                        className={`w-1 h-1 rounded-full ${selectedCatId ? "bg-foreground" : "bg-transparent border border-foreground/40"}`}
                       ></div>
                       {selectedCatId
                         ? categories.find((c) => c.id === selectedCatId)?.name
@@ -270,7 +278,7 @@ export default function Footer({
                           className="fixed inset-0 z-[50]"
                           onClick={() => setShowCatMenu(false)}
                         />
-                        <div className="absolute bottom-full mb-4 left-0 w-48 bg-[#0a0a0a] border border-white/20 rounded-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-bottom-2 z-[51]">
+                        <div className="absolute bottom-full mb-4 left-0 w-48 bg-background border border-border rounded-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-bottom-2 z-[51]">
                           <div className="max-h-48 overflow-y-auto no-scrollbar space-y-2">
                             <button
                               type="button"
@@ -278,7 +286,7 @@ export default function Footer({
                                 setSelectedCatId(null);
                                 setShowCatMenu(false);
                               }}
-                              className="w-full text-left p-2 text-[11px] text-white/40 hover:text-white transition-all lowercase"
+                              className="w-full text-left p-2 text-[11px] text-foreground/40 hover:text-foreground transition-all lowercase"
                             >
                               no category
                             </button>
@@ -290,7 +298,7 @@ export default function Footer({
                                   setSelectedCatId(cat.id);
                                   setShowCatMenu(false);
                                 }}
-                                className={`w-full text-left p-2 text-[11px] transition-all lowercase ${selectedCatId === cat.id ? "text-white font-bold" : "text-white/60 hover:text-white"}`}
+                                className={`w-full text-left p-2 text-[11px] transition-all lowercase ${selectedCatId === cat.id ? "text-foreground font-bold" : "text-foreground/60 hover:text-foreground"}`}
                               >
                                 {cat.name}
                               </button>
@@ -306,10 +314,10 @@ export default function Footer({
 
             {view === "category" && !activeCategory && (
               <div className="mt-2 px-1">
-                <div className="flex items-center gap-3 border border-white/20 bg-[#111] rounded-xl px-4 py-3 focus-within:border-white/40 focus-within:bg-[#1a1a1a] transition-all group">
+                <div className="flex items-center gap-3 border border-border bg-foreground/5 rounded-xl px-4 py-3 focus-within:border-foreground/40 focus-within:bg-foreground/10 transition-all group">
                   <FolderPlus
                     size={14}
-                    className="text-white/40 group-focus-within:text-white transition-colors"
+                    className="text-foreground/40 group-focus-within:text-foreground transition-colors"
                   />
                   <input
                     value={newCatName}
@@ -321,7 +329,7 @@ export default function Footer({
                       }
                     }}
                     placeholder="create new category..."
-                    className="bg-transparent border-none p-0 text-[13px] font-medium tracking-tight text-white/50 focus:ring-0 placeholder:text-white/40 lowercase flex-1 min-w-0"
+                    className="bg-transparent border-none p-0 text-[13px] font-medium tracking-tight text-foreground/50 focus:ring-0 placeholder:text-foreground/40 lowercase flex-1 min-w-0"
                   />
                   <AnimatePresence>
                     {newCatName.trim() && (
@@ -331,7 +339,7 @@ export default function Footer({
                         exit={{ opacity: 0, x: 5 }}
                         type="button"
                         onClick={handleAddCategory}
-                        className="bg-white/20 hover:bg-white text-white hover:text-black p-1.5 rounded-lg transition-all shrink-0"
+                        className="bg-foreground/20 hover:bg-foreground text-foreground hover:text-black p-1.5 rounded-lg transition-all shrink-0"
                       >
                         <Plus size={14} strokeWidth={2.5} />
                       </motion.button>
@@ -347,7 +355,7 @@ export default function Footer({
           <button
             type="button"
             onClick={() => supabase.auth.signOut()}
-            className="text-[10px] font-bold text-white/20 hover:text-red-500/50 transition-colors uppercase tracking-[0.3em] py-2 px-4"
+            className="text-[10px] font-bold text-foreground/20 hover:text-red-500/50 transition-colors uppercase tracking-[0.3em] py-2 px-4"
           >
             sign out
           </button>

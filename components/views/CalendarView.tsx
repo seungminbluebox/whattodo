@@ -57,16 +57,21 @@ export default function CalendarView({
       <div className="mt-4 mb-12 flex items-center justify-center space-x-12">
         <button
           onClick={() => changeMonth(-1)}
-          className="text-white/20 hover:text-white transition-colors p-2"
+          className="text-foreground/20 hover:text-foreground transition-colors p-2"
         >
           <span className="text-xs">←</span>
         </button>
-        <h2 className="text-[11px] font-medium text-white uppercase tracking-[0.4em]">
+        <button
+          onClick={() =>
+            setSelectedDate(new Date().toISOString().split("T")[0])
+          }
+          className="text-[11px] font-medium text-foreground uppercase tracking-[0.4em] hover:opacity-60 transition-opacity"
+        >
           {daysInMonth.year}/{String(daysInMonth.month + 1).padStart(2, "0")}
-        </h2>
+        </button>
         <button
           onClick={() => changeMonth(1)}
-          className="text-white/20 hover:text-white transition-colors p-2"
+          className="text-foreground/20 hover:text-foreground transition-colors p-2"
         >
           <span className="text-xs">→</span>
         </button>
@@ -81,16 +86,30 @@ export default function CalendarView({
             initial="enter"
             animate="center"
             exit="exit"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={1}
+            onDragEnd={(_, info) => {
+              const threshold = 50;
+              const velocity = info.velocity.x;
+              const offset = info.offset.x;
+
+              if (offset > threshold || velocity > 500) {
+                changeMonth(-1);
+              } else if (offset < -threshold || velocity < -500) {
+                changeMonth(1);
+              }
+            }}
             transition={{
               x: { type: "spring", stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
           >
-            <div className="grid grid-cols-7 gap-y-2 text-center">
+            <div className="grid grid-cols-7 gap-y-2 text-center pointer-events-none">
               {["S", "m", "t", "w", "t", "f", "s"].map((d, i) => (
                 <div
                   key={`${d}-${i}`}
-                  className="text-[9px] font-medium text-white/20 uppercase tracking-widest pb-4"
+                  className="text-[9px] font-medium text-foreground/20 uppercase tracking-widest pb-4"
                 >
                   {d}
                 </div>
@@ -112,13 +131,13 @@ export default function CalendarView({
                   <button
                     key={day}
                     onClick={() => setSelectedDate(dateStr)}
-                    className="relative flex flex-col items-center justify-start h-12 group focus:outline-none"
+                    className="relative flex flex-col items-center justify-start h-12 group focus:outline-none pointer-events-auto"
                   >
                     <div
                       className={`flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 ${
                         isSelected
-                          ? "bg-white text-black font-semibold"
-                          : "text-white/40 group-hover:text-white/70"
+                          ? "bg-foreground text-background font-semibold"
+                          : "text-foreground/40 group-hover:text-foreground/70"
                       }`}
                     >
                       <span className="text-[13px]">{day}</span>
@@ -126,7 +145,7 @@ export default function CalendarView({
                     {/* Indicator container with fixed height to prevent layout shift */}
                     <div className="h-4 flex items-center justify-center">
                       {!isSelected && hasTasks && (
-                        <div className="w-1 h-1 bg-white/70 rounded-full shadow-[0_0_3px_rgba(255,255,255,0.4)]"></div>
+                        <div className="w-1 h-1 bg-foreground/70 rounded-full shadow-[0_0_3px_rgba(255,255,255,0.4)]"></div>
                       )}
                     </div>
                   </button>
@@ -141,7 +160,7 @@ export default function CalendarView({
         {calendarTodos.map((todo) => (
           <div
             key={todo.id}
-            className="pb-4 border-b border-white/5 last:border-0"
+            className="pb-4 border-b border-border/50 last:border-0"
           >
             <TodoItem
               todo={todo}
@@ -151,7 +170,7 @@ export default function CalendarView({
           </div>
         ))}
         {calendarTodos.length === 0 && (
-          <p className="text-white/10 text-[13px] lowercase font-light tracking-wide italic">
+          <p className="text-foreground/10 text-[13px] lowercase font-light tracking-wide italic">
             nothing planned for this day
           </p>
         )}

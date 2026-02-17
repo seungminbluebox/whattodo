@@ -1,9 +1,10 @@
-"use client";
-import { Todo } from "@/store/useTodoStore";
+﻿"use client";
+import { Todo, Category } from "@/store/useTodoStore";
 import TodoItem from "@/components/todo/TodoItem";
 
 interface TrashViewProps {
   trashTodos: Todo[];
+  categories: Category[];
   onEmptyTrash: () => void;
   onRestoreTodo: (id: string, content: string) => void;
   onPermanentDeleteTodo: (id: string) => void;
@@ -11,6 +12,7 @@ interface TrashViewProps {
 
 export default function TrashView({
   trashTodos,
+  categories,
   onEmptyTrash,
   onRestoreTodo,
   onPermanentDeleteTodo,
@@ -18,7 +20,7 @@ export default function TrashView({
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
       <div className="flex justify-between items-end">
-        <h2 className="text-[32px] font-light text-white tracking-tight leading-none lowercase mt-4">
+        <h2 className="text-[32px] font-light text-foreground tracking-tight leading-none lowercase mt-4">
           🗑️
         </h2>
         {trashTodos.length > 0 && (
@@ -32,7 +34,7 @@ export default function TrashView({
       </div>
       <div className="space-y-6">
         {trashTodos.length === 0 ? (
-          <p className="text-white/20 text-[13px] italic lowercase">
+          <p className="text-foreground/20 text-[13px] italic lowercase">
             trash is empty
           </p>
         ) : (
@@ -40,6 +42,7 @@ export default function TrashView({
             <TodoItem
               key={todo.id}
               todo={todo}
+              categories={categories}
               isTrash
               onRestore={onRestoreTodo}
               onPermanentDelete={onPermanentDeleteTodo}

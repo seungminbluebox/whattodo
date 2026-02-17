@@ -41,21 +41,21 @@ export default function CategoryDetailView({
       <div className="flex items-start justify-between mb-2">
         <button
           onClick={onBack}
-          className="text-white/40 hover:text-white text-[15px] uppercase font-medium tracking-[0.2em] flex items-center gap-2 transition-colors"
+          className="text-foreground/40 hover:text-foreground text-[15px] uppercase font-medium tracking-[0.2em] flex items-center gap-2 transition-colors"
         >
           <span className="text-[20px] leading-none mb-0.5">←</span> back
         </button>
         <div className="flex flex-col items-end gap-1">
-          <div className="text-white/40 text-[11px] tracking-widest font-bold uppercase">
+          <div className="text-foreground/40 text-[11px] tracking-widest font-bold uppercase">
             {done} / {total}
           </div>
-          <div className="text-white/20 text-[9px] tracking-[0.2em] font-medium uppercase">
+          <div className="text-foreground/20 text-[9px] tracking-[0.2em] font-medium uppercase">
             {percent}% completed
           </div>
         </div>
       </div>
 
-      <h2 className="text-[32px] font-light text-white tracking-tight leading-none lowercase">
+      <h2 className="text-[32px] font-light text-foreground tracking-tight leading-none lowercase">
         {activeCategory.name}
       </h2>
 
@@ -63,7 +63,7 @@ export default function CategoryDetailView({
         {/* Scheduled Section */}
         {pendingInCat.length > 0 && (
           <div className="space-y-6">
-            <span className="text-[9px] text-white/50 uppercase tracking-[0.3em] font-medium block mb-4">
+            <span className="text-[9px] text-foreground/50 uppercase tracking-[0.3em] font-medium block mb-4">
               scheduled
             </span>
             {pendingInCat.map((todo) => (
@@ -88,9 +88,9 @@ export default function CategoryDetailView({
 
         {somedayInCat.length > 0 && (
           <div
-            className={`pt-8 ${pendingInCat.length > 0 ? "border-t border-white/10" : ""} space-y-6`}
+            className={`pt-8 ${pendingInCat.length > 0 ? "border-t border-border" : ""} space-y-6`}
           >
-            <span className="text-[9px] text-white/50 uppercase tracking-[0.3em] font-medium block mb-4">
+            <span className="text-[9px] text-foreground/50 uppercase tracking-[0.3em] font-medium block mb-4">
               someday
             </span>
             {somedayInCat.map((todo) => (
@@ -114,8 +114,8 @@ export default function CategoryDetailView({
         )}
 
         {completedInCat.length > 0 && (
-          <div className="pt-8 border-t border-white/10 space-y-6">
-            <span className="text-[9px] text-white/30 uppercase tracking-[0.3em] font-medium block mb-4">
+          <div className="pt-8 border-t border-border space-y-6">
+            <span className="text-[9px] text-foreground/30 uppercase tracking-[0.3em] font-medium block mb-4">
               done
             </span>
             {completedInCat.map((todo) => (
