@@ -51,6 +51,7 @@ export default function Home() {
   const [editingCatName, setEditingCatName] = useState("");
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoContent, setEditingTodoContent] = useState("");
+  const [editingTodoNotes, setEditingTodoNotes] = useState("");
   const [direction, setDirection] = useState(0);
   const [toast, setToast] = useState<{ message: string; show: boolean }>({
     message: "",
@@ -160,9 +161,13 @@ export default function Home() {
 
   const handleUpdateTodoContent = async (id: string) => {
     if (!editingTodoContent.trim()) return;
-    await updateTodo(id, { content: editingTodoContent.trim() });
+    await updateTodo(id, {
+      content: editingTodoContent.trim(),
+      notes: editingTodoNotes.trim() || null,
+    });
     setEditingTodoId(null);
     setEditingTodoContent("");
+    setEditingTodoNotes("");
   };
 
   const showToast = (message: string) => {
@@ -359,9 +364,9 @@ export default function Home() {
     });
 
   return (
-    <div className="bg-background min-h-screen text-foreground font-display selection:bg-foreground/20">
+    <div className="bg-background min-h-screen text-foreground font-display selection:bg-foreground/20 overflow-x-hidden">
       <div className="h-12 w-full"></div>
-      <div className="flex flex-col min-h-[calc(100dvh-3rem)] max-w-md mx-auto px-8 relative overflow-hidden">
+      <div className="flex flex-col h-[calc(100dvh-3rem)] max-w-md mx-auto px-5 sm:px-8 relative overflow-hidden">
         <Header
           view={view}
           setView={handleViewChange}
@@ -374,25 +379,27 @@ export default function Home() {
 
         <main className="flex-grow overflow-hidden relative">
           <motion.div
-            className="h-full w-full"
+            className="h-full w-full touch-pan-y select-none"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.05}
+            dragMomentum={false}
             onDragEnd={(_, info) => {
               if (activeCategory) return;
-              const threshold = 80;
+              const threshold = 50;
               const velocity = info.velocity.x;
               const offset = info.offset.x;
 
-              if (offset > threshold || velocity > 500) {
+              if (offset > threshold || velocity > 300) {
                 const currentIndex = VIEWS.indexOf(view);
                 if (currentIndex > 0) handleViewChange(VIEWS[currentIndex - 1]);
-              } else if (offset < -threshold || velocity < -500) {
+              } else if (offset < -threshold || velocity < -300) {
                 const currentIndex = VIEWS.indexOf(view);
                 if (currentIndex < VIEWS.length - 1)
                   handleViewChange(VIEWS[currentIndex + 1]);
               }
             }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
             <AnimatePresence mode="wait" custom={direction}>
               {view === "trash" ? (
@@ -424,7 +431,7 @@ export default function Home() {
                     animate="center"
                     exit="exit"
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="h-full overflow-y-auto no-scrollbar pb-60"
+                    className="h-full overflow-y-auto no-scrollbar pb-70"
                   >
                     <CategoryList
                       categories={categories}
@@ -461,6 +468,8 @@ export default function Home() {
                       setEditingTodoId={setEditingTodoId}
                       editingTodoContent={editingTodoContent}
                       setEditingTodoContent={setEditingTodoContent}
+                      editingTodoNotes={editingTodoNotes}
+                      setEditingTodoNotes={setEditingTodoNotes}
                       onUpdateTodoContent={handleUpdateTodoContent}
                     />
                   </motion.div>
@@ -474,7 +483,7 @@ export default function Home() {
                   animate="center"
                   exit="exit"
                   transition={{ duration: 0.3 }}
-                  className="h-full overflow-y-auto no-scrollbar pb-60"
+                  className="h-full overflow-y-auto no-scrollbar pb-50"
                 >
                   <CalendarView
                     selectedDate={selectedDate}
@@ -486,6 +495,13 @@ export default function Home() {
                     changeMonth={changeMonth}
                     onToggleTodo={toggleTodo}
                     onDeleteTodo={deleteTodo}
+                    editingTodoId={editingTodoId}
+                    setEditingTodoId={setEditingTodoId}
+                    editingTodoContent={editingTodoContent}
+                    setEditingTodoContent={setEditingTodoContent}
+                    editingTodoNotes={editingTodoNotes}
+                    setEditingTodoNotes={setEditingTodoNotes}
+                    onUpdateTodoContent={handleUpdateTodoContent}
                     direction={direction}
                   />
                 </motion.div>

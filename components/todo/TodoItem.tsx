@@ -10,10 +10,12 @@ interface TodoItemProps {
   onDelete?: (id: string) => void;
   onRestore?: (id: string, content: string) => void;
   onPermanentDelete?: (id: string) => void;
-  onEdit?: (id: string, content: string) => void;
+  onEdit?: (id: string, content: string, notes: string) => void;
   isEditing?: boolean;
   editingContent?: string;
   setEditingContent?: (content: string) => void;
+  editingNotes?: string;
+  setEditingNotes?: (notes: string) => void;
   onUpdateContent?: (id: string) => void;
   setEditingId?: (id: string | null) => void;
   isTrash?: boolean;
@@ -30,6 +32,8 @@ export default function TodoItem({
   isEditing,
   editingContent,
   setEditingContent,
+  editingNotes,
+  setEditingNotes,
   onUpdateContent,
   setEditingId,
   isTrash,
@@ -51,6 +55,11 @@ export default function TodoItem({
             <p className="text-[14px] font-medium leading-relaxed text-foreground/80 break-words">
               {todo.content}
             </p>
+            {todo.notes && (
+              <p className="text-[12px] text-muted-foreground/60 leading-relaxed mt-1 break-words line-clamp-2">
+                {todo.notes}
+              </p>
+            )}
             <div className="flex items-center gap-2 mt-1">
               {category && (
                 <span className="text-[10px] text-muted uppercase tracking-[0.1em] font-bold">
@@ -118,38 +127,68 @@ export default function TodoItem({
       <div className="flex-grow flex items-start justify-between">
         <div className="flex flex-col flex-grow min-w-0">
           {isEditing ? (
-            <input
-              autoFocus
-              className="bg-transparent border-none outline-none text-[15px] font-medium leading-relaxed text-foreground w-full p-0 focus:ring-0"
-              value={editingContent}
-              onChange={(e) => setEditingContent?.(e.target.value)}
-              onBlur={() => onUpdateContent?.(todo.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onUpdateContent?.(todo.id);
-                if (e.key === "Escape") {
-                  setEditingId?.(null);
-                  setEditingContent?.("");
-                }
-              }}
-            />
+            <div className="space-y-2 w-full">
+              <input
+                autoFocus
+                className="bg-transparent border-none outline-none text-[15px] font-medium leading-relaxed text-foreground w-full p-0 focus:ring-0"
+                value={editingContent}
+                onChange={(e) => setEditingContent?.(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onUpdateContent?.(todo.id);
+                  if (e.key === "Escape") {
+                    setEditingId?.(null);
+                    setEditingContent?.("");
+                    setEditingNotes?.("");
+                  }
+                }}
+              />
+              <textarea
+                placeholder="Add a memo..."
+                className="bg-foreground/5 border-none outline-none text-[13px] font-medium leading-relaxed text-muted-foreground w-full p-3 rounded-xl focus:ring-0 resize-none min-h-[80px]"
+                value={editingNotes}
+                onChange={(e) => setEditingNotes?.(e.target.value)}
+              />
+              <div className="flex justify-end pt-1">
+                <button
+                  onClick={() => onUpdateContent?.(todo.id)}
+                  className="px-3 py-1.5 bg-foreground text-background rounded-lg text-xs font-bold"
+                >
+                  SAVE
+                </button>
+              </div>
+            </div>
           ) : (
-            <p
-              onClick={() => {
-                if (onEdit) {
-                  onEdit(todo.id, todo.content);
-                }
-              }}
-              className={`text-[15px] font-medium leading-relaxed cursor-text flex items-center gap-2 transition-all ${
-                todo.is_completed
-                  ? "text-muted line-through decoration-muted/50"
-                  : "text-foreground"
-              }`}
-            >
-              {todo.content}
-              {todo.is_recurring && (
-                <Repeat size={12} className="text-muted/60" strokeWidth={2} />
+            <>
+              <p
+                onClick={() => {
+                  if (onEdit) {
+                    onEdit(todo.id, todo.content, todo.notes || "");
+                  }
+                }}
+                className={`text-[15px] font-medium leading-relaxed cursor-text flex items-center gap-2 transition-all ${
+                  todo.is_completed
+                    ? "text-muted line-through decoration-muted/50"
+                    : "text-foreground"
+                }`}
+              >
+                {todo.content}
+                {todo.is_recurring && (
+                  <Repeat size={12} className="text-muted/60" strokeWidth={2} />
+                )}
+              </p>
+              {todo.notes && (
+                <p
+                  onClick={() => {
+                    if (onEdit) {
+                      onEdit(todo.id, todo.content, todo.notes || "");
+                    }
+                  }}
+                  className="text-[13px] text-muted-foreground font-light leading-relaxed mt-1 break-words line-clamp-2 cursor-text"
+                >
+                  {todo.notes}
+                </p>
               )}
-            </p>
+            </>
           )}
           {todo.due_date && !todo.is_completed && (
             <div className="flex items-center gap-1 mt-2.5">

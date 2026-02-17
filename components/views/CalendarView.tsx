@@ -18,6 +18,13 @@ interface CalendarViewProps {
   changeMonth: (offset: number) => void;
   onToggleTodo: (id: string, completed: boolean) => void;
   onDeleteTodo: (id: string) => void;
+  editingTodoId: string | null;
+  setEditingTodoId: (id: string | null) => void;
+  editingTodoContent: string;
+  setEditingTodoContent: (content: string) => void;
+  editingTodoNotes: string;
+  setEditingTodoNotes: (notes: string) => void;
+  onUpdateTodoContent: (id: string) => void;
   direction: number;
 }
 
@@ -46,6 +53,13 @@ export default function CalendarView({
   changeMonth,
   onToggleTodo,
   onDeleteTodo,
+  editingTodoId,
+  setEditingTodoId,
+  editingTodoContent,
+  setEditingTodoContent,
+  editingTodoNotes,
+  setEditingTodoNotes,
+  onUpdateTodoContent,
   direction,
 }: CalendarViewProps) {
   const calendarTodos = todos.filter(
@@ -88,15 +102,17 @@ export default function CalendarView({
             exit="exit"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={1}
+            dragElastic={0.6}
+            dragMomentum={false}
+            className="touch-none"
             onDragEnd={(_, info) => {
-              const threshold = 50;
+              const threshold = 30;
               const velocity = info.velocity.x;
               const offset = info.offset.x;
 
-              if (offset > threshold || velocity > 500) {
+              if (offset > threshold || velocity > 300) {
                 changeMonth(-1);
-              } else if (offset < -threshold || velocity < -500) {
+              } else if (offset < -threshold || velocity < -300) {
                 changeMonth(1);
               }
             }}
@@ -105,7 +121,7 @@ export default function CalendarView({
               opacity: { duration: 0.2 },
             }}
           >
-            <div className="grid grid-cols-7 gap-y-4 text-center pointer-events-none">
+            <div className="grid grid-cols-7 gap-y-4 text-center select-none">
               {["S", "m", "t", "w", "t", "f", "s"].map((d, i) => (
                 <div
                   key={`${d}-${i}`}
@@ -162,7 +178,7 @@ export default function CalendarView({
         </AnimatePresence>
       </div>
 
-      <section className="space-y-6 pb-24 animate-in slide-in-from-bottom-6 duration-1000">
+      <section className="space-y-6 animate-in slide-in-from-bottom-6 duration-1000">
         {calendarTodos.map((todo) => (
           <div
             key={todo.id}
@@ -172,6 +188,18 @@ export default function CalendarView({
               todo={todo}
               onToggle={onToggleTodo}
               onDelete={onDeleteTodo}
+              isEditing={editingTodoId === todo.id}
+              editingContent={editingTodoContent}
+              setEditingContent={setEditingTodoContent}
+              editingNotes={editingTodoNotes}
+              setEditingNotes={setEditingTodoNotes}
+              onUpdateContent={onUpdateTodoContent}
+              onEdit={(id, content, notes) => {
+                setEditingTodoId(id);
+                setEditingTodoContent(content);
+                setEditingTodoNotes(notes);
+              }}
+              setEditingId={setEditingTodoId}
             />
           </div>
         ))}

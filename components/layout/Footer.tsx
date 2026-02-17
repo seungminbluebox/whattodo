@@ -105,19 +105,19 @@ export default function Footer({
                 </AnimatePresence>
               </div>
 
-              <div className="flex items-center gap-5 mt-4 h-5">
+              <div className="flex items-center gap-2 mt-4 overflow-x-auto no-scrollbar flex-nowrap min-h-8">
                 {view !== "calendar" && (
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <button
                       type="button"
                       onClick={() => setShowDatePicker(!showDatePicker)}
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.1em] transition-all flex items-center gap-2 border ${
+                      className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.05em] transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                         useDeadline
                           ? "bg-accent text-foreground border-accent"
                           : "bg-foreground/5 text-foreground/40 border-transparent hover:border-border hover:bg-foreground/10"
                       }`}
                     >
-                      <Calendar size={12} strokeWidth={2.5} />
+                      <Calendar size={11} strokeWidth={2.5} />
                       {useDeadline
                         ? `${new Date(selectedDate).getMonth() + 1}월 ${new Date(selectedDate).getDate()}일`
                         : "날짜 선택"}
@@ -269,11 +269,11 @@ export default function Footer({
                   </div>
                 )}
                 {useDeadline && (
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <button
                       type="button"
                       onClick={() => setIsRecurring(!isRecurring)}
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.1em] transition-all flex items-center gap-1.5 border ${
+                      className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.05em] transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                         isRecurring
                           ? "bg-foreground text-background border-foreground"
                           : "bg-foreground/5 text-foreground/40 border-transparent hover:border-border hover:bg-foreground/10"
@@ -287,11 +287,11 @@ export default function Footer({
                   </div>
                 )}
                 {!activeCategory && (
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <button
                       type="button"
                       onClick={() => setShowCatMenu(!showCatMenu)}
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.1em] transition-all flex items-center gap-1.5 border ${
+                      className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.05em] transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                         selectedCatId
                           ? "bg-accent text-foreground border-accent"
                           : "bg-foreground/5 text-foreground/40 border-transparent hover:border-border hover:bg-foreground/10"
@@ -305,22 +305,51 @@ export default function Footer({
                         : "카테고리 선택"}
                     </button>
                     {showCatMenu && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-[50]"
-                          onClick={() => setShowCatMenu(false)}
-                        />
-                        <div className="absolute bottom-full mb-4 left-0 w-48 bg-background border border-border rounded-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-bottom-2 z-[51]">
-                          <div className="max-h-48 overflow-y-auto no-scrollbar space-y-2">
+                      <div
+                        className="fixed inset-0 z-[101] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm cursor-pointer"
+                        onClick={() => setShowCatMenu(false)}
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                          className="relative w-[300px] bg-background border border-border rounded-[32px] shadow-2xl overflow-hidden flex flex-col p-6 cursor-default"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex justify-between items-center mb-6 shrink-0">
+                            <h3 className="text-[14px] font-bold tracking-[0.1em] text-foreground uppercase">
+                              카테고리 선택
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => setShowCatMenu(false)}
+                              className="text-foreground/40 hover:text-foreground transition-colors"
+                            >
+                              <Plus
+                                className="rotate-45"
+                                size={20}
+                                strokeWidth={2}
+                              />
+                            </button>
+                          </div>
+
+                          <div className="max-h-[300px] overflow-y-auto no-scrollbar space-y-1.5">
                             <button
                               type="button"
                               onClick={() => {
                                 setSelectedCatId(null);
                                 setShowCatMenu(false);
                               }}
-                              className="w-full text-left p-2 text-[11px] text-foreground/40 hover:text-foreground transition-all"
+                              className={`w-full text-left p-4 rounded-2xl text-[13px] transition-all flex items-center justify-between border ${
+                                !selectedCatId
+                                  ? "bg-foreground text-background font-bold border-foreground"
+                                  : "bg-foreground/5 text-foreground/60 border-transparent hover:bg-foreground/10"
+                              }`}
                             >
-                              카테고리 없음
+                              <span>카테고리 없음</span>
+                              {!selectedCatId && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-background" />
+                              )}
                             </button>
                             {categories.map((cat) => (
                               <button
@@ -330,14 +359,21 @@ export default function Footer({
                                   setSelectedCatId(cat.id);
                                   setShowCatMenu(false);
                                 }}
-                                className={`w-full text-left p-2 text-[11px] transition-all lowercase ${selectedCatId === cat.id ? "text-foreground font-bold" : "text-foreground/60 hover:text-foreground"}`}
+                                className={`w-full text-left p-4 rounded-2xl text-[13px] transition-all flex items-center justify-between border ${
+                                  selectedCatId === cat.id
+                                    ? "bg-foreground text-background font-bold border-foreground"
+                                    : "bg-foreground/5 text-foreground/60 border-transparent hover:bg-foreground/10"
+                                }`}
                               >
-                                {cat.name}
+                                <span className="lowercase">{cat.name}</span>
+                                {selectedCatId === cat.id && (
+                                  <div className="w-1.5 h-1.5 rounded-full bg-background" />
+                                )}
                               </button>
                             ))}
                           </div>
-                        </div>
-                      </>
+                        </motion.div>
+                      </div>
                     )}
                   </div>
                 )}

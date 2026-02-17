@@ -21,6 +21,7 @@ export interface Todo {
   due_date: string | null;
   is_recurring: boolean;
   recurring_day: number | null;
+  notes: string | null;
   is_deleted: boolean;
   user_id: string;
 }
@@ -95,6 +96,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
               content: t.content,
               category_id: t.category_id,
               recurring_day: t.recurring_day!,
+              notes: t.notes,
               min_date: t.due_date, // 처음 생성된(혹은 존재하는 가장 빠른) 날짜 기록
             };
           } else if (
@@ -112,6 +114,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
             content: string;
             category_id: string | null;
             recurring_day: number;
+            notes: string | null;
             min_date: string | null;
           }
         >,
@@ -160,6 +163,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
             due_date: targetDate,
             is_recurring: true,
             recurring_day: rule.recurring_day,
+            notes: rule.notes,
             user_id: user.id,
             is_completed: false,
             is_deleted: false,

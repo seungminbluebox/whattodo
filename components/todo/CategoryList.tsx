@@ -55,8 +55,8 @@ export default function CategoryList({
     inboxTotal > 0 ? Math.round((inboxDone / inboxTotal) * 100) : 0;
 
   return (
-    <div className="animate-in fade-in duration-700 h-full flex flex-col">
-      <div className="flex-grow overflow-y-auto no-scrollbar pb-20">
+    <div className="animate-in fade-in duration-700">
+      <div className="space-y-2">
         {/* Inbox */}
         <div key="inbox">
           <div

@@ -15,6 +15,8 @@ interface CategoryDetailViewProps {
   setEditingTodoId: (id: string | null) => void;
   editingTodoContent: string;
   setEditingTodoContent: (content: string) => void;
+  editingTodoNotes: string;
+  setEditingTodoNotes: (notes: string) => void;
   onUpdateTodoContent: (id: string) => void;
 }
 
@@ -30,6 +32,8 @@ export default function CategoryDetailView({
   setEditingTodoId,
   editingTodoContent,
   setEditingTodoContent,
+  editingTodoNotes,
+  setEditingTodoNotes,
   onUpdateTodoContent,
 }: CategoryDetailViewProps) {
   const allTodos = [...pendingInCat, ...somedayInCat, ...completedInCat];
@@ -39,7 +43,7 @@ export default function CategoryDetailView({
 
   return (
     <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
-      <div className="flex items-start justify-between mb-2">
+      <div className="flex items-start justify-between mb-2 mt-2">
         <button
           onClick={onBack}
           className="flex items-center gap-1 text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors py-1 px-2 -ml-2 rounded-md hover:bg-accent group"
@@ -81,10 +85,13 @@ export default function CategoryDetailView({
                 isEditing={editingTodoId === todo.id}
                 editingContent={editingTodoContent}
                 setEditingContent={setEditingTodoContent}
+                editingNotes={editingTodoNotes}
+                setEditingNotes={setEditingTodoNotes}
                 onUpdateContent={onUpdateTodoContent}
-                onEdit={(id, content) => {
+                onEdit={(id, content, notes) => {
                   setEditingTodoId(id);
                   setEditingTodoContent(content);
+                  setEditingTodoNotes(notes);
                 }}
                 setEditingId={setEditingTodoId}
               />
@@ -108,10 +115,13 @@ export default function CategoryDetailView({
                 isEditing={editingTodoId === todo.id}
                 editingContent={editingTodoContent}
                 setEditingContent={setEditingTodoContent}
+                editingNotes={editingTodoNotes}
+                setEditingNotes={setEditingTodoNotes}
                 onUpdateContent={onUpdateTodoContent}
-                onEdit={(id, content) => {
+                onEdit={(id, content, notes) => {
                   setEditingTodoId(id);
                   setEditingTodoContent(content);
+                  setEditingTodoNotes(notes);
                 }}
                 setEditingId={setEditingTodoId}
               />
@@ -133,10 +143,13 @@ export default function CategoryDetailView({
                 isEditing={editingTodoId === todo.id}
                 editingContent={editingTodoContent}
                 setEditingContent={setEditingTodoContent}
+                editingNotes={editingTodoNotes}
+                setEditingNotes={setEditingTodoNotes}
                 onUpdateContent={onUpdateTodoContent}
-                onEdit={(id, content) => {
+                onEdit={(id, content, notes) => {
                   setEditingTodoId(id);
                   setEditingTodoContent(content);
+                  setEditingTodoNotes(notes);
                 }}
                 setEditingId={setEditingTodoId}
               />

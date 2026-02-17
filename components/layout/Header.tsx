@@ -23,8 +23,8 @@ export default function Header({
   setEditingCatId,
 }: HeaderProps) {
   return (
-    <header className="flex justify-between items-center pt-4 pb-12 border-b border-border w-full">
-      <div className="flex gap-6">
+    <header className="flex justify-between items-center pt-4 pb-12 border-b border-border w-full gap-4">
+      <div className="flex gap-5 sm:gap-6">
         <button
           onClick={() => {
             setView("category");
@@ -94,7 +94,7 @@ export default function Header({
               setIsEditing(!isEditing);
               setEditingCatId(null);
             }}
-            className="text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors lowercase shrink-0 mr-3 px-2 py-1 rounded-md hover:bg-accent"
+            className="text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors lowercase shrink-0 mr-1 px-2 py-1 rounded-md hover:bg-accent"
           >
             {isEditing ? "done" : "edit"}
           </button>
