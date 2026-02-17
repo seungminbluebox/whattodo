@@ -120,46 +120,41 @@ export default function Home() {
   }, [useDeadline]);
 
   useEffect(() => {
-    async function initPush() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+    let pushInitialized = false;
 
-      if (session?.user) {
-        console.log(
-          "Session found, initializing push for user:",
-          session.user.id,
-        );
-        const registration = await registerServiceWorker();
-        if (registration) {
-          console.log(
-            "Service Worker registered, now subscribing flow starting...",
-          );
-          const sub = await subscribeToPush(session.user.id);
-          console.log("Push subscription result object:", sub);
-        } else {
-          console.error(
-            "Skip push subscription: Service Worker registration failed",
-          );
-        }
+    async function handlePushSync(userId: string) {
+      if (pushInitialized) return;
+      pushInitialized = true;
+      console.log("Push init started for:", userId);
+      const reg = await registerServiceWorker();
+      if (reg) {
+        await subscribeToPush(userId);
       }
     }
 
-    initPush();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        console.log("Auth state changed, user:", session.user.id);
-        await registerServiceWorker();
-        await subscribeToPush(session.user.id);
+    // 초기 세션 확인
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        handlePushSync(currentUser.id);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // 상태 변경 감지
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser && !pushInitialized) {
+        handlePushSync(currentUser.id);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

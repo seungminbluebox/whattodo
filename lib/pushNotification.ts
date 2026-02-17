@@ -77,22 +77,11 @@ export async function subscribeToPush(userId: string) {
     }
 
     // Supabase에 저장
+    // Supabase에 저장
     console.log("subscribeToPush phase 9: upserting to Supabase...");
-    console.log(
-      "Supabase URL:",
-      process.env.NEXT_PUBLIC_SUPABASE_URL ? "Exists" : "MISSING",
-    );
-
-    // 타임아웃 10초 설정
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Supabase response timeout (10s)")),
-        10000,
-      ),
-    );
 
     try {
-      const upsertPromise = supabase.from("push_subscriptions").upsert(
+      const response = await supabase.from("push_subscriptions").upsert(
         {
           user_id: userId,
           subscription: subscription.toJSON(),
@@ -100,17 +89,13 @@ export async function subscribeToPush(userId: string) {
         { onConflict: "user_id" },
       );
 
-      // 타임아웃과 실제 요청 중 먼저 끝나는 쪽을 처리
-      const { data, error }: any = await Promise.race([
-        upsertPromise,
-        timeoutPromise,
-      ]);
+      console.log("Supabase raw response:", response);
 
-      if (error) {
-        console.error("Supabase upsert failure:", error);
-        alert("DB 저장 실패: " + error.message);
+      if (response.error) {
+        console.error("Supabase upsert failure:", response.error);
+        alert(`DB 저장 실패 (${response.status}): ` + response.error.message);
       } else {
-        console.log("Successfully saved/updated subscription in DB! 🎉", data);
+        console.log("Successfully saved/updated subscription in DB! 🎉");
         alert("알림 설정이 완료되었습니다! 🔔");
       }
     } catch (dbError: any) {
@@ -122,17 +107,15 @@ export async function subscribeToPush(userId: string) {
   } catch (error) {
     console.error("Failed to subscribe to push (catch block):", error);
   }
+}
 
-  function urlBase64ToUint8Array(base64String: string) {
-    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding)
-      .replace(/-/g, "+")
-      .replace(/_/g, "/");
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
   }
+  return outputArray;
 }
