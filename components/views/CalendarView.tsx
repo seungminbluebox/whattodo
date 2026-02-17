@@ -115,17 +115,17 @@ export default function CalendarView({
             exit="exit"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.6}
+            dragElastic={0.8}
             dragMomentum={false}
-            className="touch-none"
+            className="touch-pan-y"
             onDragEnd={(_, info) => {
-              const threshold = 30;
+              const threshold = 10;
               const velocity = info.velocity.x;
               const offset = info.offset.x;
 
-              if (offset > threshold || velocity > 300) {
+              if (offset > threshold || velocity > 50) {
                 changeMonth(-1);
-              } else if (offset < -threshold || velocity < -300) {
+              } else if (offset < -threshold || velocity < -50) {
                 changeMonth(1);
               }
             }}

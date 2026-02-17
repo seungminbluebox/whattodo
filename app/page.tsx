@@ -395,24 +395,24 @@ export default function Home() {
             className="h-full w-full touch-pan-y select-none"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.05}
+            dragElastic={0.8}
             dragMomentum={false}
             onDragEnd={(_, info) => {
               if (activeCategory) return;
-              const threshold = 50;
+              const threshold = 10;
               const velocity = info.velocity.x;
               const offset = info.offset.x;
 
-              if (offset > threshold || velocity > 300) {
+              if (offset > threshold || velocity > 50) {
                 const currentIndex = VIEWS.indexOf(view);
                 if (currentIndex > 0) handleViewChange(VIEWS[currentIndex - 1]);
-              } else if (offset < -threshold || velocity < -300) {
+              } else if (offset < -threshold || velocity < -50) {
                 const currentIndex = VIEWS.indexOf(view);
                 if (currentIndex < VIEWS.length - 1)
                   handleViewChange(VIEWS[currentIndex + 1]);
               }
             }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={viewTransition}
           >
             <AnimatePresence mode="wait" custom={direction}>
               {view === "trash" ? (
