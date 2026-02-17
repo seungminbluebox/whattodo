@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
-import { getNextRecurringDate } from "../lib/dateUtils";
+import {
+  getNextRecurringDate,
+  getRecurringDateForMonth,
+} from "../lib/dateUtils";
 
 export interface Category {
   id: string;
@@ -27,6 +30,7 @@ interface TodoState {
   categories: Category[];
   fetchTodos: () => Promise<void>;
   fetchCategories: () => Promise<void>;
+  syncRecurringTasks: () => Promise<void>;
   addTodo: (todo: Partial<Todo>) => Promise<void>;
   updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>;
   toggleTodo: (id: string, is_completed: boolean) => Promise<void>;
@@ -58,6 +62,8 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }
 
     set({ todos: data || [] });
+    // Fetch 후 반복 일정 동기화
+    await get().syncRecurringTasks();
   },
   fetchCategories: async () => {
     const { data, error } = await supabase
@@ -70,6 +76,110 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       return;
     }
     set({ categories: data || [] });
+  },
+  syncRecurringTasks: async (baseDate?: string | Date) => {
+    const { todos } = get();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 활성화된 반복 일정 정의(규칙) 수집 (삭제된 항목 제외하고 규칙 파악)
+    const recurringRules = todos
+      .filter((t) => t.is_recurring && t.recurring_day && !t.is_deleted)
+      .reduce(
+        (acc, t) => {
+          const key = `${t.content}-${t.category_id}-${t.recurring_day}`;
+          if (!acc[key]) {
+            acc[key] = {
+              content: t.content,
+              category_id: t.category_id,
+              recurring_day: t.recurring_day!,
+              min_date: t.due_date, // 처음 생성된(혹은 존재하는 가장 빠른) 날짜 기록
+            };
+          } else if (
+            t.due_date &&
+            acc[key].min_date &&
+            t.due_date < acc[key].min_date
+          ) {
+            acc[key].min_date = t.due_date;
+          }
+          return acc;
+        },
+        {} as Record<
+          string,
+          {
+            content: string;
+            category_id: string | null;
+            recurring_day: number;
+            min_date: string | null;
+          }
+        >,
+      );
+
+    // baseDate가 없으면 현재 시간을 기준으로 시작
+    const now = baseDate ? new Date(baseDate) : new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
+    // 현재 기준 달부터 3개월치(rolling window)를 미리 생성
+    const newTodos: any[] = [];
+
+    for (const rule of Object.values(recurringRules)) {
+      for (let i = 0; i <= 3; i++) {
+        let targetMonth = currentMonth + i;
+        let targetYear = currentYear;
+        if (targetMonth > 12) {
+          targetMonth -= 12;
+          targetYear += 1;
+        }
+
+        const targetDate = getRecurringDateForMonth(
+          targetYear,
+          targetMonth,
+          rule.recurring_day,
+        );
+
+        // rule.min_date보다 이전 날짜면 생성하지 않음
+        if (rule.min_date && targetDate < rule.min_date) {
+          continue;
+        }
+
+        // 이미 해당 기한으로 생성된 할 일이 있는지 확인 (완료/미완료/삭제 모두 포함)
+        const alreadyExists = todos.some(
+          (t) =>
+            t.content === rule.content &&
+            t.category_id === rule.category_id &&
+            t.due_date === targetDate,
+        );
+
+        if (!alreadyExists) {
+          newTodos.push({
+            content: rule.content,
+            category_id: rule.category_id,
+            due_date: targetDate,
+            is_recurring: true,
+            recurring_day: rule.recurring_day,
+            user_id: user.id,
+            is_completed: false,
+            is_deleted: false,
+          });
+        }
+      }
+    }
+
+    if (newTodos.length > 0) {
+      const { data, error } = await supabase
+        .from("todos")
+        .insert(newTodos)
+        .select();
+
+      if (!error && data) {
+        set((state) => ({ todos: [...data, ...state.todos] }));
+      } else {
+        console.error("Error syncing recurring tasks:", error);
+      }
+    }
   },
   addTodo: async (todoData) => {
     const {
@@ -90,6 +200,10 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
     if (data) {
       set((state) => ({ todos: [data, ...state.todos] }));
+      // 반복 일정인 경우 현재 추가된 날짜를 기준으로 미래 일정 동기화
+      if (data.is_recurring) {
+        await get().syncRecurringTasks(data.due_date);
+      }
     }
   },
   updateCategory: async (id, updates) => {

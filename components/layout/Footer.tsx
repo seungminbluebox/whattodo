@@ -34,6 +34,8 @@ interface FooterProps {
   newCatName: string;
   setNewCatName: (name: string) => void;
   handleAddCategory: (e: React.FormEvent) => void;
+  isRecurring: boolean;
+  setIsRecurring: (is: boolean) => void;
 }
 
 export default function Footer({
@@ -60,6 +62,8 @@ export default function Footer({
   newCatName,
   setNewCatName,
   handleAddCategory,
+  isRecurring,
+  setIsRecurring,
 }: FooterProps) {
   return (
     <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-8 pb-4 pt-0 bg-background z-50">
@@ -256,6 +260,20 @@ export default function Footer({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+                {useDeadline && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsRecurring(!isRecurring)}
+                      className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-1.5 ${isRecurring ? "text-foreground" : "text-foreground/40 hover:text-foreground/60"}`}
+                    >
+                      <div
+                        className={`w-1 h-1 rounded-full ${isRecurring ? "bg-foreground" : "bg-transparent border border-foreground/40"}`}
+                      ></div>
+                      {isRecurring ? "monthly" : "one-time"}
+                    </button>
                   </div>
                 )}
                 {!activeCategory && (

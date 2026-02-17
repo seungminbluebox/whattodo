@@ -30,7 +30,25 @@ export default function CategoryList({
   onDeleteCategory,
   onSelectCategory,
 }: CategoryListProps) {
-  const inboxTodos = activeTodos.filter((t) => !t.category_id);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const thirtyDaysLater = new Date(today);
+  thirtyDaysLater.setDate(today.getDate() + 30);
+
+  const filterWindow = (t: Todo) => {
+    if (!t.due_date) return true;
+    const d = new Date(t.due_date);
+    d.setHours(0, 0, 0, 0);
+    return d >= thirtyDaysAgo && d <= thirtyDaysLater;
+  };
+
+  const inboxTodos = activeTodos
+    .filter((t) => !t.category_id)
+    .filter(filterWindow);
   const inboxTotal = inboxTodos.length;
   const inboxDone = inboxTodos.filter((t) => t.is_completed).length;
   const inboxPercent =
@@ -73,9 +91,9 @@ export default function CategoryList({
           className="flex flex-col"
         >
           {categories.map((cat) => {
-            const catTodos = activeTodos.filter(
-              (t) => t.category_id === cat.id,
-            );
+            const catTodos = activeTodos
+              .filter((t) => t.category_id === cat.id)
+              .filter(filterWindow);
             const total = catTodos.length;
             const done = catTodos.filter((t) => t.is_completed).length;
             const percent = total > 0 ? Math.round((done / total) * 100) : 0;

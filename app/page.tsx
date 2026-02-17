@@ -75,6 +75,7 @@ export default function Home() {
     categories,
     fetchTodos,
     fetchCategories,
+    syncRecurringTasks,
     addTodo,
     updateTodo,
     addCategory,
@@ -89,11 +90,19 @@ export default function Home() {
   } = useTodoStore();
 
   useEffect(() => {
-    // 캘린더 뷰일 때는 항상 deadline을 사용하도록 설정
+    // 캘린더 뷰일 때는 항상 deadline을 사용하도록 설정 (달력 이동 시 동기화도 포함)
     if (view === "calendar") {
       setUseDeadline(true);
+      syncRecurringTasks(selectedDate);
     }
-  }, [view]);
+  }, [view, selectedDate, syncRecurringTasks]);
+
+  useEffect(() => {
+    // 기한이 없으면 반복 설정도 해제
+    if (!useDeadline) {
+      setIsRecurring(false);
+    }
+  }, [useDeadline]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -247,17 +256,28 @@ export default function Home() {
           ? activeCategory.id
           : selectedCatId;
 
+    let recurringDay: number | null = null;
+    if (isRecurring) {
+      if (dueDate) {
+        const d = new Date(dueDate);
+        const lastDayOfMonth = new Date(
+          d.getFullYear(),
+          d.getMonth() + 1,
+          0,
+        ).getDate();
+        // If it's the last day of the month, use 99 for 'last day' logic
+        recurringDay = d.getDate() === lastDayOfMonth ? 99 : d.getDate();
+      } else {
+        recurringDay = new Date().getDate();
+      }
+    }
+
     await addTodo({
       content: inputValue,
       due_date: dueDate,
       category_id: finalCatId,
       is_recurring: isRecurring,
-      recurring_day:
-        isRecurring && dueDate
-          ? new Date(dueDate).getDate()
-          : isRecurring
-            ? new Date().getDate()
-            : null,
+      recurring_day: recurringDay,
     });
 
     const targetCatName = activeCategory
@@ -288,14 +308,35 @@ export default function Home() {
   const activeTodos = todos.filter((t) => !t.is_deleted);
   const trashTodos = todos.filter((t) => t.is_deleted);
 
+  // 오늘 기준 정보 (일정 필터링용: 오늘 기준 ±30일 이내)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // 비교를 위해 시간을 0으로 설정
+
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const thirtyDaysLater = new Date(today);
+  thirtyDaysLater.setDate(today.getDate() + 30);
+
   // 카테고리 필터링된 할 일
-  const activeCategoryTodos = activeCategory
-    ? activeCategory.id === "trash"
-      ? trashTodos
-      : activeCategory.id === "inbox"
-        ? activeTodos.filter((t) => !t.category_id)
-        : activeTodos.filter((t) => t.category_id === activeCategory.id)
-    : [];
+  const activeCategoryTodos = (
+    activeCategory
+      ? activeCategory.id === "trash"
+        ? trashTodos
+        : activeCategory.id === "inbox"
+          ? activeTodos.filter((t) => !t.category_id)
+          : activeTodos.filter((t) => t.category_id === activeCategory.id)
+      : []
+  ).filter((t) => {
+    // 기한 없는 할 일은 무조건 표시
+    if (!t.due_date) return true;
+
+    const d = new Date(t.due_date);
+    d.setHours(0, 0, 0, 0);
+
+    // ±30일 이내의 일정만 표시 (범위를 벗어난 완료된/미완료된 항목은 숨김)
+    return d >= thirtyDaysAgo && d <= thirtyDaysLater;
+  });
 
   const pendingInCat = activeCategoryTodos
     .filter((t) => t.due_date && !t.is_completed)
@@ -477,6 +518,8 @@ export default function Home() {
           newCatName={newCatName}
           setNewCatName={setNewCatName}
           handleAddCategory={handleAddCategory}
+          isRecurring={isRecurring}
+          setIsRecurring={setIsRecurring}
         />
 
         <div

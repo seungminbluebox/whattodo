@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Trash2, RotateCcw } from "lucide-react";
+import { Trash2, RotateCcw, Repeat } from "lucide-react";
 import { Todo, Category } from "@/store/useTodoStore";
 
 interface TodoItemProps {
@@ -135,13 +135,16 @@ export default function TodoItem({
                   onEdit(todo.id, todo.content);
                 }
               }}
-              className={`text-[14px] font-normal leading-relaxed cursor-text ${
+              className={`text-[14px] font-normal leading-relaxed cursor-text flex items-center gap-2 ${
                 todo.is_completed
                   ? "text-foreground/30 line-through decoration-foreground/30"
                   : "text-foreground/90"
               }`}
             >
               {todo.content}
+              {todo.is_recurring && (
+                <Repeat size={10} className="text-foreground/30" />
+              )}
             </p>
           )}
           {todo.due_date && !todo.is_completed && (
