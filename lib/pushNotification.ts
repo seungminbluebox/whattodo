@@ -109,6 +109,50 @@ export async function subscribeToPush(userId: string) {
   }
 }
 
+export async function unsubscribeFromPush(userId: string) {
+  try {
+    const registration =
+      await navigator.serviceWorker.getRegistration("/whattodo/");
+    if (registration) {
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await subscription.unsubscribe();
+        console.log("Push subscription removed from browser");
+      }
+    }
+
+    // DB에서 삭제
+    const { error } = await supabase
+      .from("push_subscriptions")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to delete subscription from DB:", error);
+      return false;
+    }
+
+    console.log("Push subscription removed from DB");
+    return true;
+  } catch (error) {
+    console.error("Error during unsubscription:", error);
+    return false;
+  }
+}
+
+export async function checkPushSubscription() {
+  if (!("serviceWorker" in navigator)) return false;
+  try {
+    const registration =
+      await navigator.serviceWorker.getRegistration("/whattodo/");
+    if (!registration) return false;
+    const subscription = await registration.pushManager.getSubscription();
+    return !!subscription;
+  } catch (error) {
+    return false;
+  }
+}
+
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
