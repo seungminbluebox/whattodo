@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, RotateCcw, Repeat } from "lucide-react";
 import { Todo, Category } from "@/store/useTodoStore";
 
@@ -122,15 +122,74 @@ export default function TodoItem({
       className="flex items-start group py-3 px-2 rounded-xl hover:bg-accent/30 transition-colors"
     >
       <button
-        onClick={() => onToggle?.(todo.id, todo.is_completed)}
-        className={`w-5 h-5 rounded-full border-2 border-border mt-[2px] mr-4 flex-shrink-0 flex items-center justify-center transition-all ${
-          todo.is_completed
-            ? "bg-foreground border-foreground scale-95"
-            : "bg-transparent hover:border-foreground/50"
-        }`}
+        onClick={() => {
+          if (!todo.is_completed) {
+            const audio = new Audio(
+              "https://joshwcomeau.com/sounds/pop-down.mp3",
+            );
+            audio.volume = 1.0;
+            audio.play().catch(() => {});
+          }
+          onToggle?.(todo.id, todo.is_completed);
+        }}
+        className="relative w-5 h-5 mt-[2px] mr-4 flex-shrink-0 group/check"
       >
+        <motion.div
+          initial={false}
+          animate={{
+            scale: todo.is_completed ? [1, 1.25, 1] : 1,
+            backgroundColor: todo.is_completed
+              ? "rgb(59, 130, 246)"
+              : "transparent",
+            borderColor: todo.is_completed
+              ? "rgb(59, 130, 246)"
+              : "var(--border)",
+          }}
+          transition={{
+            scale: { duration: 0.25, ease: "easeOut" },
+            default: { type: "spring", stiffness: 500, damping: 30 },
+          }}
+          whileTap={{ scale: 0.85 }}
+          className={`w-full h-full rounded-full border-2 flex items-center justify-center transition-colors ${
+            !todo.is_completed && "group-hover/check:border-blue-500/50"
+          }`}
+        >
+          <AnimatePresence>
+            {todo.is_completed && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 800,
+                  damping: 35,
+                }}
+              >
+                <svg
+                  viewBox="0 0 12 12"
+                  className="w-2.5 h-2.5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="2.5 6 5 8.5 9.5 3.5" />
+                </svg>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* 터뜨리는 듯한 효과(Particle) - 완료 시에만 잠깐 반짝임 */}
         {todo.is_completed && (
-          <div className="w-1.5 h-1.5 rounded-full bg-background"></div>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 1 }}
+            animate={{ scale: 1.8, opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute inset-0 rounded-full border-2 border-blue-500 pointer-events-none"
+          />
         )}
       </button>
       <div className="flex-grow flex items-start justify-between">

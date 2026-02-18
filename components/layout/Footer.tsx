@@ -172,7 +172,7 @@ export default function Footer({
                             </button>
                           </div>
 
-                          <div className="flex-1 relative overflow-hidden">
+                          <div className="flex-1 relative overflow-hidden touch-pan-y">
                             <AnimatePresence
                               initial={false}
                               custom={direction}
@@ -190,15 +190,34 @@ export default function Footer({
                                   x: direction > 0 ? -50 : 50,
                                   opacity: 0,
                                 }}
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={0.8}
+                                dragMomentum={false}
+                                onDragEnd={(_, info) => {
+                                  const threshold = 25;
+                                  const velocity = info.velocity.x;
+                                  const offset = info.offset.x;
+
+                                  if (offset > threshold || velocity > 200) {
+                                    changeMonth(-1);
+                                  } else if (
+                                    offset < -threshold ||
+                                    velocity < -50
+                                  ) {
+                                    changeMonth(1);
+                                  }
+                                }}
                                 transition={{
                                   x: {
                                     type: "spring",
-                                    stiffness: 300,
-                                    damping: 30,
+                                    stiffness: 800,
+                                    damping: 60,
+                                    mass: 0.4,
                                   },
-                                  opacity: { duration: 0.2 },
+                                  opacity: { duration: 0.12, ease: "easeOut" },
                                 }}
-                                className="w-full"
+                                className="w-full select-none"
                               >
                                 <div className="grid grid-cols-7 gap-1 text-center content-start">
                                   {["S", "M", "T", "W", "T", "F", "S"].map(

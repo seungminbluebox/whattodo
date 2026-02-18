@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Category } from "@/store/useTodoStore";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { Settings2, Check } from "lucide-react";
 import {
   subscribeToPush,
   registerServiceWorker,
@@ -89,7 +90,7 @@ export default function Header({
           }}
           className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
             view === "category"
-              ? "text-foreground"
+              ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               : "text-muted hover:text-foreground/70"
           }`}
         >
@@ -97,7 +98,7 @@ export default function Header({
           {view === "category" && (
             <motion.div
               layoutId="header-dot"
-              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]"
             />
           )}
         </button>
@@ -109,7 +110,7 @@ export default function Header({
           }}
           className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
             view === "calendar"
-              ? "text-foreground"
+              ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               : "text-muted hover:text-foreground/70"
           }`}
         >
@@ -117,7 +118,7 @@ export default function Header({
           {view === "calendar" && (
             <motion.div
               layoutId="header-dot"
-              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]"
             />
           )}
         </button>
@@ -129,7 +130,7 @@ export default function Header({
           }}
           className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
             view === "trash"
-              ? "text-foreground"
+              ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               : "text-muted hover:text-foreground/70"
           }`}
         >
@@ -137,7 +138,7 @@ export default function Header({
           {view === "trash" && (
             <motion.div
               layoutId="header-dot"
-              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-foreground rounded-full"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]"
             />
           )}
         </button>
@@ -150,9 +151,18 @@ export default function Header({
               setIsEditing(!isEditing);
               setEditingCatId(null);
             }}
-            className="text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors lowercase shrink-0 mr-1 px-2 py-1 rounded-md hover:bg-accent"
+            className={`p-1.5 transition-all rounded-md mr-1 flex items-center justify-center ${
+              isEditing
+                ? "text-foreground bg-accent"
+                : "text-muted hover:text-foreground hover:bg-accent/50"
+            }`}
+            aria-label={isEditing ? "Finish editing" : "Edit categories"}
           >
-            {isEditing ? "done" : "edit"}
+            {isEditing ? (
+              <Check size={17} strokeWidth={2.5} />
+            ) : (
+              <Settings2 size={17} strokeWidth={2.2} />
+            )}
           </button>
         )}
         <button
