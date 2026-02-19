@@ -7,15 +7,17 @@ import { useTodoStore, Category } from "@/store/useTodoStore";
 // Components
 import LoginView from "@/components/auth/LoginView";
 import Toast from "@/components/ui/Toast";
+import TopBar from "@/components/layout/TopBar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import TrashView from "@/components/views/TrashView";
 import CategoryList from "@/components/todo/CategoryList";
 import CategoryDetailView from "@/components/views/CategoryDetailView";
 import CalendarView from "@/components/views/CalendarView";
+import TodayView from "@/components/views/TodayView";
 import { registerServiceWorker, subscribeToPush } from "@/lib/pushNotification";
 
-const VIEWS = ["category", "calendar", "trash"] as const;
+const VIEWS = ["today", "category", "calendar", "trash"] as const;
 type ViewType = (typeof VIEWS)[number];
 
 const mainViewVariants = {
@@ -48,7 +50,7 @@ const viewTransition = {
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
-  const [view, setView] = useState<ViewType>("category");
+  const [view, setView] = useState<ViewType>("today");
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
@@ -96,6 +98,7 @@ export default function Home() {
     addCategory,
     updateCategory,
     toggleTodo,
+    setPlannedDate,
     deleteTodo,
     restoreTodo,
     permanentlyDeleteTodo,
@@ -435,7 +438,13 @@ export default function Home() {
 
   return (
     <div className="bg-background min-h-screen text-foreground font-display selection:bg-foreground/20 overflow-x-hidden">
-      <div className="h-12 w-full"></div>
+      <TopBar
+        view={view}
+        activeCategory={activeCategory}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        setEditingCatId={setEditingCatId}
+      />
       <div className="flex flex-col h-[calc(100dvh-3rem)] max-w-md mx-auto px-5 sm:px-8 relative overflow-x-hidden">
         <Header
           view={view}
@@ -449,7 +458,38 @@ export default function Home() {
 
         <main className="flex-grow overflow-x-hidden relative">
           <AnimatePresence mode="popLayout" custom={direction}>
-            {view === "trash" ? (
+            {view === "today" ? (
+              <motion.div
+                key="today"
+                custom={direction}
+                variants={mainViewVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={viewTransition}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.8}
+                dragMomentum={false}
+                onDragEnd={handleSwipe}
+                className="h-full overflow-y-auto no-scrollbar pb-60 w-full touch-pan-y select-none"
+              >
+                <TodayView
+                  todos={todos}
+                  categories={categories}
+                  onToggleTodo={toggleTodo}
+                  onSetPlannedDate={setPlannedDate}
+                  onDeleteTodo={deleteTodo}
+                  editingTodoId={editingTodoId}
+                  setEditingTodoId={setEditingTodoId}
+                  editingTodoContent={editingTodoContent}
+                  setEditingTodoContent={setEditingTodoContent}
+                  editingTodoNotes={editingTodoNotes}
+                  setEditingTodoNotes={setEditingTodoNotes}
+                  onUpdateTodoContent={handleUpdateTodoContent}
+                />
+              </motion.div>
+            ) : view === "trash" ? (
               <motion.div
                 key="trash"
                 custom={direction}
@@ -520,6 +560,7 @@ export default function Home() {
                     somedayInCat={somedayInCat}
                     completedInCat={completedInCat}
                     onToggleTodo={toggleTodo}
+                    onSetPlannedDate={setPlannedDate}
                     onDeleteTodo={deleteTodo}
                     editingTodoId={editingTodoId}
                     setEditingTodoId={setEditingTodoId}
@@ -556,6 +597,7 @@ export default function Home() {
                   daysInMonth={daysInMonth}
                   changeMonth={changeMonth}
                   onToggleTodo={toggleTodo}
+                  onSetPlannedDate={setPlannedDate}
                   onDeleteTodo={deleteTodo}
                   editingTodoId={editingTodoId}
                   setEditingTodoId={setEditingTodoId}

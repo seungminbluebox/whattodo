@@ -7,6 +7,7 @@ interface TodoItemProps {
   todo: Todo;
   categories?: Category[];
   onToggle?: (id: string, completed: boolean) => void;
+  onSetPlannedDate?: (id: string, date: string | null) => void;
   onDelete?: (id: string) => void;
   onRestore?: (id: string, content: string) => void;
   onPermanentDelete?: (id: string) => void;
@@ -25,6 +26,7 @@ export default function TodoItem({
   todo,
   categories,
   onToggle,
+  onSetPlannedDate,
   onDelete,
   onRestore,
   onPermanentDelete,
@@ -305,17 +307,80 @@ export default function TodoItem({
           )}
         </div>
         {!isEditing && (
-          <button
-            onClick={() => {
-              if (window.confirm("할 일을 삭제하시겠습니까?")) {
-                onDelete?.(todo.id);
-              }
-            }}
-            className="opacity-0 group-hover:opacity-100 p-2 text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/5 transition-all ml-4 rounded-full shrink-0"
-            title="Delete"
-          >
-            <Trash2 size={16} strokeWidth={1.5} />
-          </button>
+          <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity ml-4 shrink-0">
+            {/* Planning Group: Today & Tomorrow */}
+            <div className="flex items-center rounded-xl p-0.5 border border-foreground/[0.08] bg-foreground/[0.01]">
+              <button
+                onClick={() => {
+                  const todayStr = new Date().toLocaleDateString("sv-SE");
+                  onSetPlannedDate?.(
+                    todo.id,
+                    todo.planned_date === todayStr ? null : todayStr,
+                  );
+                }}
+                className={`px-2 py-1.5 rounded-[9px] transition-all flex items-center justify-center min-w-[28px] ${
+                  (() => {
+                    const todayStr = new Date().toLocaleDateString("sv-SE");
+                    return (
+                      todo.planned_date === todayStr ||
+                      todo.due_date === todayStr
+                    );
+                  })()
+                    ? "text-blue-500 bg-blue-500/15 shadow-sm font-bold"
+                    : "text-blue-500/40 hover:bg-blue-500/10 font-medium"
+                }`}
+                title="Today"
+              >
+                <span className="text-[10px] leading-none tracking-tight">
+                  D
+                </span>
+              </button>
+
+              <div className="w-[1px] h-3 bg-foreground/[0.08] mx-0.5" />
+
+              <button
+                onClick={() => {
+                  const tomorrow = new Date();
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  const tomStr = tomorrow.toLocaleDateString("sv-SE");
+                  onSetPlannedDate?.(
+                    todo.id,
+                    todo.planned_date === tomStr ? null : tomStr,
+                  );
+                }}
+                className={`px-2 py-1.5 rounded-[9px] transition-all flex items-center justify-center min-w-[36px] ${
+                  (() => {
+                    const tom = new Date();
+                    tom.setDate(tom.getDate() + 1);
+                    const tomStr = tom.toLocaleDateString("sv-SE");
+                    return (
+                      todo.planned_date === tomStr || todo.due_date === tomStr
+                    );
+                  })()
+                    ? "text-purple-500 bg-purple-500/15 shadow-sm font-bold"
+                    : "text-purple-500/40 hover:bg-purple-500/10 font-medium"
+                }`}
+                title="Tomorrow"
+              >
+                <span className="text-[10px] leading-none tracking-tight">
+                  D+1
+                </span>
+              </button>
+            </div>
+
+            {/* Separate Delete Action */}
+            <button
+              onClick={() => {
+                if (window.confirm("할 일을 삭제하시겠습니까?")) {
+                  onDelete?.(todo.id);
+                }
+              }}
+              className="p-2 text-red-500/30 hover:text-red-500 hover:bg-red-500/10 transition-all rounded-xl shrink-0"
+              title="Delete"
+            >
+              <Trash2 size={16} strokeWidth={1.5} />
+            </button>
+          </div>
         )}
       </div>
     </motion.div>

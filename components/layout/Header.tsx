@@ -1,20 +1,10 @@
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Category } from "@/store/useTodoStore";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Settings2, Check } from "lucide-react";
-import {
-  subscribeToPush,
-  registerServiceWorker,
-  unsubscribeFromPush,
-  checkPushSubscription,
-} from "@/lib/pushNotification";
-import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
 
 interface HeaderProps {
-  view: "category" | "calendar" | "trash";
-  setView: (view: "category" | "calendar" | "trash") => void;
+  view: "today" | "category" | "calendar" | "trash";
+  setView: (view: "today" | "category" | "calendar" | "trash") => void;
   activeCategory: Category | null;
   setActiveCategory: (cat: Category | null) => void;
   isEditing: boolean;
@@ -31,64 +21,36 @@ export default function Header({
   setIsEditing,
   setEditingCatId,
 }: HeaderProps) {
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    async function checkSub() {
-      const subbed = await checkPushSubscription();
-      setIsSubscribed(subbed);
-    }
-    checkSub();
-  }, []);
-
-  const handlePushToggle = async () => {
-    setIsLoading(true);
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        alert("먼저 로그인해 주세요.");
-        return;
-      }
-
-      if (isSubscribed) {
-        // 알림 해제
-        const success = await unsubscribeFromPush(user.id);
-        if (success) {
-          setIsSubscribed(false);
-          alert("알림이 해제되었습니다. 🔕");
-        }
-      } else {
-        // 알림 신청
-        const reg = await registerServiceWorker();
-        if (reg) {
-          const sub = await subscribeToPush(user.id, true);
-          if (sub) {
-            setIsSubscribed(true);
-          }
-        } else {
-          alert("서비스 워커를 지원하지 않는 브라우저입니다.");
-        }
-      }
-    } catch (err) {
-      console.error("Push toggle error:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <header className="flex justify-between items-center pt-4 pb-12 border-b border-border w-full gap-4">
-      <div className="flex gap-5 sm:gap-6">
+    <header className="flex justify-between items-center py-4 border-b border-border w-full gap-4">
+      <div className="flex gap-5 sm:gap-6 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0 scroll-smooth">
+        <button
+          onClick={() => {
+            setView("today");
+            setActiveCategory(null);
+            setIsEditing(false);
+          }}
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 shrink-0 ${
+            view === "today"
+              ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+              : "text-muted hover:text-foreground/70"
+          }`}
+        >
+          today
+          {view === "today" && (
+            <motion.div
+              layoutId="header-dot"
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]"
+            />
+          )}
+        </button>
         <button
           onClick={() => {
             setView("category");
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 shrink-0 ${
             view === "category"
               ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               : "text-muted hover:text-foreground/70"
@@ -108,7 +70,7 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 shrink-0 ${
             view === "calendar"
               ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               : "text-muted hover:text-foreground/70"
@@ -128,7 +90,7 @@ export default function Header({
             setActiveCategory(null);
             setIsEditing(false);
           }}
-          className={`text-sm font-semibold tracking-tight transition-all relative py-1 ${
+          className={`text-sm font-semibold tracking-tight transition-all relative py-1 shrink-0 ${
             view === "trash"
               ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               : "text-muted hover:text-foreground/70"
@@ -142,117 +104,6 @@ export default function Header({
             />
           )}
         </button>
-      </div>
-
-      <div className="flex items-center gap-1">
-        {view === "category" && !activeCategory && (
-          <button
-            onClick={() => {
-              setIsEditing(!isEditing);
-              setEditingCatId(null);
-            }}
-            className={`p-1.5 transition-all rounded-md mr-1 flex items-center justify-center ${
-              isEditing
-                ? "text-foreground bg-accent"
-                : "text-muted hover:text-foreground hover:bg-accent/50"
-            }`}
-            aria-label={isEditing ? "Finish editing" : "Edit categories"}
-          >
-            {isEditing ? (
-              <Check size={17} strokeWidth={2.5} />
-            ) : (
-              <Settings2 size={17} strokeWidth={2.2} />
-            )}
-          </button>
-        )}
-        <button
-          onClick={handlePushToggle}
-          disabled={isLoading}
-          className={`p-1.5 transition-all rounded-md hover:bg-accent/50 mr-1 relative flex items-center justify-center ${
-            isSubscribed
-              ? "text-foreground"
-              : "text-muted hover:text-foreground"
-          }`}
-          aria-label="Toggle notifications"
-        >
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.1 }}
-              >
-                <svg
-                  className="animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                </svg>
-              </motion.div>
-            ) : isSubscribed ? (
-              <motion.div
-                key="bell-on"
-                initial={{ scale: 0.8, opacity: 0, rotate: -15 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                exit={{ scale: 0.8, opacity: 0, rotate: 15 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  stroke="currentColor"
-                  strokeWidth="0.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                  <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                </svg>
-                <motion.div
-                  layoutId="push-dot"
-                  className="absolute top-1.5 right-1.5 w-1 h-1 bg-red-500 rounded-full"
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="bell-off"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                  <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                </svg>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </button>
-        <ThemeToggle />
       </div>
     </header>
   );

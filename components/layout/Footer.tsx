@@ -13,7 +13,7 @@ import { Category } from "@/store/useTodoStore";
 import { supabase } from "@/lib/supabase";
 
 interface FooterProps {
-  view: "category" | "calendar" | "trash";
+  view: "today" | "category" | "calendar" | "trash";
   inputValue: string;
   setInputValue: (v: string) => void;
   handleAddTodo: (e: React.FormEvent) => void;

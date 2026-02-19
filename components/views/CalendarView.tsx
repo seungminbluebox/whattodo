@@ -17,6 +17,7 @@ interface CalendarViewProps {
   };
   changeMonth: (offset: number) => void;
   onToggleTodo: (id: string, completed: boolean) => void;
+  onSetPlannedDate?: (id: string, date: string | null) => void;
   onDeleteTodo: (id: string) => void;
   editingTodoId: string | null;
   setEditingTodoId: (id: string | null) => void;
@@ -65,6 +66,7 @@ export default function CalendarView({
   daysInMonth,
   changeMonth,
   onToggleTodo,
+  onSetPlannedDate,
   onDeleteTodo,
   editingTodoId,
   setEditingTodoId,
@@ -197,6 +199,7 @@ export default function CalendarView({
             <TodoItem
               todo={todo}
               onToggle={onToggleTodo}
+              onSetPlannedDate={onSetPlannedDate}
               onDelete={onDeleteTodo}
               isEditing={editingTodoId === todo.id}
               editingContent={editingTodoContent}
