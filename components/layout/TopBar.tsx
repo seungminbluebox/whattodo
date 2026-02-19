@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings2, Check } from "lucide-react";
+import { Settings2, Check, Pencil } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Category } from "@/store/useTodoStore";
 import {
@@ -92,7 +92,7 @@ export default function TopBar({
             {isEditing ? (
               <Check size={17} strokeWidth={2.5} />
             ) : (
-              <Settings2 size={17} strokeWidth={2.2} />
+              <Pencil size={17} strokeWidth={2.2} />
             )}
           </button>
         )}

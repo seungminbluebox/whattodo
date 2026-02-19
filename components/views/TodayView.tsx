@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo, Dispatch, SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Todo, Category } from "@/store/useTodoStore";
 import TodoItem from "@/components/todo/TodoItem";
@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface TodayViewProps {
   todos: Todo[];
   categories: Category[];
+  dayOffset: number;
+  setDayOffset: Dispatch<SetStateAction<number>>;
   onToggleTodo: (id: string, completed: boolean) => void;
   onSetPlannedDate: (id: string, date: string | null) => void;
   onDeleteTodo: (id: string) => void;
@@ -23,6 +25,8 @@ interface TodayViewProps {
 export default function TodayView({
   todos,
   categories,
+  dayOffset,
+  setDayOffset,
   onToggleTodo,
   onSetPlannedDate,
   onDeleteTodo,
@@ -34,9 +38,6 @@ export default function TodayView({
   setEditingTodoNotes,
   onUpdateTodoContent,
 }: TodayViewProps) {
-  // -1: Yesterday, 0: Today, 1: Tomorrow
-  const [dayOffset, setDayOffset] = useState(0);
-
   const targetDateStr = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() + dayOffset);
@@ -124,12 +125,16 @@ export default function TodayView({
           <div className="py-20 flex flex-col items-center justify-center text-center opacity-20">
             <p className="text-[15px] font-light italic lowercase tracking-wide">
               {dayOffset === 0
-                ? "아직 오늘 계획한 일이 없어요"
+                ? filteredTodos.length > 0
+                  ? "할 일을 다 마치셨네요 오늘도 수고하셨어요"
+                  : "아직 오늘 계획한 일이 없어요"
                 : "계획된 일이 없습니다"}
             </p>
-            <p className="text-[12px] mt-2 lowercase">
-              다른 카테고리에서 할 일을 가져와보세요
-            </p>
+            {filteredTodos.length === 0 && (
+              <p className="text-[12px] mt-2 lowercase">
+                다른 카테고리에서 할 일을 가져와보세요
+              </p>
+            )}
           </div>
         )}
 

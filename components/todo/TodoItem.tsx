@@ -229,29 +229,46 @@ export default function TodoItem({
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2 group/title">
-                <p
-                  onClick={() => {
-                    if (onEdit) {
-                      onEdit(todo.id, todo.content, todo.notes || "");
-                    }
-                  }}
-                  className={`text-[15px] font-semibold leading-snug cursor-text transition-all ${
-                    todo.is_completed
-                      ? "text-muted/50 line-through decoration-muted/30"
-                      : "text-foreground"
-                  }`}
-                >
-                  {todo.content}
-                </p>
-                {todo.is_recurring && (
-                  <Repeat
-                    size={12}
-                    className={
-                      todo.is_completed ? "text-muted/30" : "text-muted/60"
-                    }
-                    strokeWidth={2.5}
-                  />
+              <div className="flex flex-col gap-1 min-w-0 mb-0.5">
+                <div className="flex items-center gap-2 group/title">
+                  <p
+                    onClick={() => {
+                      if (onEdit) {
+                        onEdit(todo.id, todo.content, todo.notes || "");
+                      }
+                    }}
+                    className={`text-[15px] font-semibold leading-snug cursor-text transition-all ${
+                      todo.is_completed
+                        ? "text-muted/50 line-through decoration-muted/30"
+                        : "text-foreground"
+                    }`}
+                  >
+                    {todo.content}
+                  </p>
+                  {todo.is_recurring && (
+                    <Repeat
+                      size={12}
+                      className={
+                        todo.is_completed ? "text-muted/30" : "text-muted/60"
+                      }
+                      strokeWidth={2.5}
+                    />
+                  )}
+                </div>
+
+                {/* Category Text - Minimalist Style */}
+                {categories && categories.length > 0 && (
+                  <div className="flex items-center">
+                    <span className="text-[9px] text-foreground/30 font-medium tracking-widest uppercase">
+                      {(() => {
+                        if (!todo.category_id) return "inbox";
+                        const cat = categories.find(
+                          (c) => c.id === todo.category_id,
+                        );
+                        return cat ? cat.name : "inbox";
+                      })()}
+                    </span>
+                  </div>
                 )}
               </div>
               {todo.notes && (

@@ -20,58 +20,61 @@ VAPID_CLAIMS = {"sub": "mailto:admin@example.com"}
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 def send_daily_reminders():
-    # 1. 내일 날짜 계산 (YYYY-MM-DD 형식)
-    tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    print(f"--- {tomorrow} 마감 할 일 조회 중 ---")
+    # 1. 오늘 날짜 계산 (YYYY-MM-DD 형식)
+    today = datetime.now().strftime("%Y-%m-%d")
+    print(f"--- {today} 오늘 할 일 요약 알림 발송 중 ---")
 
-    # 2. 내일 마감이고 완료되지 않은 할 일 조회
-    response = supabase.table("todos") \
-        .select("user_id, content") \
-        .eq("due_date", tomorrow) \
-        .eq("is_completed", False) \
-        .execute()
-    
-    todos = response.data
-
-    if not todos:
-        print("내일 마감인 할 일이 없습니다.")
+    # 2. 모든 푸시 구독 정보 가져오기
+    subscriptions = supabase.table("push_subscriptions").select("user_id, subscription").execute().data
+    if not subscriptions:
+        print("구독된 유저가 없습니다.")
         return
 
-    # 3. 알림 발송 로직
-    for todo in todos:
-        user_id = todo['user_id']
-        content = todo['content']
-
-        # 해당 유저의 푸시 구독 정보 가져오기
-        sub_resp = supabase.table("push_subscriptions") \
-            .select("subscription") \
+    # 3. 각 유저별로 오늘 남아있는 할 일들을 요약해서 전송
+    for sub in subscriptions:
+        user_id = sub['user_id']
+        subscription_info = sub['subscription']
+        
+        # 해당 유저의 오늘 할 일 중 '완료되지 않고 삭제되지 않은' 것들만 조회
+        response = supabase.table("todos") \
+            .select("content, due_date") \
             .eq("user_id", user_id) \
-            .single() \
+            .or_(f"planned_date.eq.{today},due_date.eq.{today}") \
+            .eq("is_completed", False) \
+            .eq("is_deleted", False) \
             .execute()
-
-        if not sub_resp.data:
-            print(f"유저 {user_id}의 구독 정보가 없습니다.")
+        
+        pending_todos = response.data
+        
+        if not pending_todos:
+            print(f"유저 {user_id}: 오늘 남은 할 일이 없어 알림을 보내지 않습니다.")
             continue
 
-        subscription_info = sub_resp.data['subscription']
+        # 정렬 로직: 기한(due_date)이 있는 할 일부터 먼저, 이어서 기한 없는 할 일 순서로 정렬
+        pending_todos.sort(key=lambda t: (t.get('due_date') is None, t.get('due_date')))
 
-        # 푸시 알림 전송 (Urgency와 TTL 추가하여 전송률 향상)
+        # 알림 메시지 생성 (모든 할 일을 정렬된 순서대로 나열)
+        count = len(pending_todos)
+        task_list = "\n".join([f"• {t['content']}" for t in pending_todos])
+        body = f"오늘 {count}개의 할 일이 남아있어요:\n{task_list}"
+
+        # 푸시 알림 전송 (단 한 번!)
         try:
             webpush(
                 subscription_info=subscription_info,
                 data=json.dumps({
-                    "title": "🔔 내일 마감 할 일!",
-                    "body": content,
-                    "url": f"/whattodo/?view=calendar&date={tomorrow}"
+                    "title": "🔔 오늘의 할 일 목록",
+                    "body": body,
+                    "url": "/whattodo/?view=today"
                 }),
                 vapid_private_key=VAPID_PRIVATE_KEY,
                 vapid_claims=VAPID_CLAIMS,
                 headers={
-                    "Urgency": "high",   # 기기를 깨우기 위한 높은 우선순위
-                    "TTL": "86400"        # 기기가 꺼져있을 때 24시간 동안 재시도
+                    "Urgency": "high",
+                    "TTL": "86400"
                 }
             )
-            print(f"성공: [{content}] 알림을 유저 {user_id}에게 보냈습니다.")
+            print(f"성공: 유저 {user_id}에게 {count}개의 할 일 목록을 보냈습니다.")
         except WebPushException as ex:
             print(f"실패: 유저 {user_id}에게 알림 전송 중 오류 발생: {ex}")
 

@@ -198,6 +198,7 @@ export default function CalendarView({
           >
             <TodoItem
               todo={todo}
+              categories={categories}
               onToggle={onToggleTodo}
               onSetPlannedDate={onSetPlannedDate}
               onDelete={onDeleteTodo}

@@ -69,6 +69,7 @@ export default function Home() {
   const [editingTodoContent, setEditingTodoContent] = useState("");
   const [editingTodoNotes, setEditingTodoNotes] = useState("");
   const [direction, setDirection] = useState(0);
+  const [dayOffset, setDayOffset] = useState(0);
   const [toast, setToast] = useState<{ message: string; show: boolean }>({
     message: "",
     show: false,
@@ -311,6 +312,15 @@ export default function Home() {
     // useDeadline이 true면 selectedDate를 사용, false면 null (Someday)
     // 단, calendar view에서는 항상 기한이 있는 것으로 간주하도록 useDeadline을 true로 초기화함
     const dueDate = useDeadline ? selectedDate : null;
+
+    // TodayView에서 추가할 때 planned_date 설정
+    let plannedDate = null;
+    if (view === "today") {
+      const d = new Date();
+      d.setDate(d.getDate() + dayOffset);
+      plannedDate = d.toLocaleDateString("sv-SE");
+    }
+
     const finalCatId =
       activeCategory?.id === "inbox"
         ? null
@@ -337,6 +347,7 @@ export default function Home() {
     await addTodo({
       content: inputValue,
       due_date: dueDate,
+      planned_date: plannedDate,
       category_id: finalCatId,
       is_recurring: isRecurring,
       recurring_day: recurringDay,
@@ -477,6 +488,8 @@ export default function Home() {
                 <TodayView
                   todos={todos}
                   categories={categories}
+                  dayOffset={dayOffset}
+                  setDayOffset={setDayOffset}
                   onToggleTodo={toggleTodo}
                   onSetPlannedDate={setPlannedDate}
                   onDeleteTodo={deleteTodo}

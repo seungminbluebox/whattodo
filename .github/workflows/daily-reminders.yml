@@ -1,0 +1,34 @@
+name: Daily Reminders
+
+on:
+  schedule:
+    # 한국 시간(KST) 오전 9시는 UTC 오전 0시입니다.
+    - cron: "57 0 * * *"
+  workflow_dispatch: # 수동 실행을 위한 설정
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install supabase pywebpush python-dotenv
+
+      - name: Send Daily Reminders
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          # supabase-py가 SUPABASE_SERVICE_KEY 또는 SUPABASE_SERVICE_ROLE_KEY를 참조합니다.
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+        run: python lib/send_reminders.py
