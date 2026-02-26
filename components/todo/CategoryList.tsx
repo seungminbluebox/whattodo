@@ -50,9 +50,6 @@ export default function CategoryList({
     .filter((t) => !t.category_id)
     .filter(filterWindow);
   const inboxTotal = inboxTodos.length;
-  const inboxDone = inboxTodos.filter((t) => t.is_completed).length;
-  const inboxPercent =
-    inboxTotal > 0 ? Math.round((inboxDone / inboxTotal) * 100) : 0;
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -75,9 +72,8 @@ export default function CategoryList({
               inbox
             </span>
             <div className="flex items-center gap-4 pointer-events-none">
-              <span className="text-foreground/100 text-xs tracking-widest">
-                {inboxDone}/{inboxTotal}{" "}
-                <span className="ml-1 text-[10px]">{inboxPercent}%</span>
+              <span className="text-foreground/20 text-xs tracking-widest">
+                {inboxTotal}
               </span>
             </div>
           </div>
@@ -95,8 +91,6 @@ export default function CategoryList({
               .filter((t) => t.category_id === cat.id)
               .filter(filterWindow);
             const total = catTodos.length;
-            const done = catTodos.filter((t) => t.is_completed).length;
-            const percent = total > 0 ? Math.round((done / total) * 100) : 0;
             const isEditingThis = editingCatId === cat.id;
 
             return (
@@ -153,9 +147,8 @@ export default function CategoryList({
 
                   <div className="flex items-center gap-4">
                     {!isEditing && (
-                      <span className="text-foreground/100 text-xs tracking-widest pointer-events-none">
-                        {done}/{total}{" "}
-                        <span className="ml-1 text-[10px]">{percent}%</span>
+                      <span className="text-foreground/20 text-xs tracking-widest pointer-events-none">
+                        {total}
                       </span>
                     )}
                     {isEditing && !isEditingThis && (

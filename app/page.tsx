@@ -99,9 +99,10 @@ export default function Home() {
     addCategory,
     updateCategory,
     toggleTodo,
-    setPlannedDate,
     deleteTodo,
     restoreTodo,
+    setPlannedDate,
+    setDueDate,
     permanentlyDeleteTodo,
     emptyTrash,
     deleteCategory,
@@ -391,6 +392,9 @@ export default function Home() {
   const thirtyDaysLater = new Date(today);
   thirtyDaysLater.setDate(today.getDate() + 30);
 
+  const fifteenDaysAgo = new Date(today);
+  fifteenDaysAgo.setDate(today.getDate() - 15);
+
   // 카테고리 필터링된 할 일
   const activeCategoryTodos = (
     activeCategory
@@ -401,10 +405,11 @@ export default function Home() {
           : activeTodos.filter((t) => t.category_id === activeCategory.id)
       : []
   ).filter((t) => {
-    // 기한 없는 할 일은 무조건 표시
-    if (!t.due_date) return true;
+    // 기한이나 계획일이 없는 할 일은 무조건 표시
+    if (!t.due_date && !t.planned_date) return true;
 
-    const d = new Date(t.due_date);
+    const targetDate = t.planned_date || t.due_date;
+    const d = new Date(targetDate!);
     d.setHours(0, 0, 0, 0);
 
     // ±30일 이내의 일정만 표시 (범위를 벗어난 완료된/미완료된 항목은 숨김)
@@ -412,16 +417,25 @@ export default function Home() {
   });
 
   const pendingInCat = activeCategoryTodos
-    .filter((t) => t.due_date && !t.is_completed)
-    .sort(
-      (a, b) =>
-        new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime(),
-    );
+    .filter((t) => (t.due_date || t.planned_date) && !t.is_completed)
+    .sort((a, b) => {
+      const aDate = a.due_date || a.planned_date;
+      const bDate = b.due_date || b.planned_date;
+      return new Date(aDate!).getTime() - new Date(bDate!).getTime();
+    });
   const somedayInCat = activeCategoryTodos.filter(
-    (t) => !t.due_date && !t.is_completed,
+    (t) => !t.due_date && !t.planned_date && !t.is_completed,
   );
   const completedInCat = activeCategoryTodos
-    .filter((t) => t.is_completed)
+    .filter((t) => {
+      if (!t.is_completed) return false;
+      // 완료 후 15일이 지난 항목은 제외 (completed_at 기준)
+      if (t.completed_at) {
+        const completedDate = new Date(t.completed_at);
+        if (completedDate < fifteenDaysAgo) return false;
+      }
+      return true;
+    })
     .sort((a, b) => {
       if (a.due_date && b.due_date) {
         return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
@@ -492,6 +506,7 @@ export default function Home() {
                   setDayOffset={setDayOffset}
                   onToggleTodo={toggleTodo}
                   onSetPlannedDate={setPlannedDate}
+                  onSetDueDate={setDueDate}
                   onDeleteTodo={deleteTodo}
                   editingTodoId={editingTodoId}
                   setEditingTodoId={setEditingTodoId}
@@ -574,6 +589,7 @@ export default function Home() {
                     completedInCat={completedInCat}
                     onToggleTodo={toggleTodo}
                     onSetPlannedDate={setPlannedDate}
+                    onSetDueDate={setDueDate}
                     onDeleteTodo={deleteTodo}
                     editingTodoId={editingTodoId}
                     setEditingTodoId={setEditingTodoId}
@@ -611,6 +627,7 @@ export default function Home() {
                   changeMonth={changeMonth}
                   onToggleTodo={toggleTodo}
                   onSetPlannedDate={setPlannedDate}
+                  onSetDueDate={setDueDate}
                   onDeleteTodo={deleteTodo}
                   editingTodoId={editingTodoId}
                   setEditingTodoId={setEditingTodoId}

@@ -11,6 +11,7 @@ interface CategoryDetailViewProps {
   completedInCat: Todo[];
   onToggleTodo: (id: string, completed: boolean) => void;
   onSetPlannedDate?: (id: string, date: string | null) => void;
+  onSetDueDate: (id: string, date: string | null) => void;
   onDeleteTodo: (id: string) => void;
   editingTodoId: string | null;
   setEditingTodoId: (id: string | null) => void;
@@ -29,6 +30,7 @@ export default function CategoryDetailView({
   completedInCat,
   onToggleTodo,
   onSetPlannedDate,
+  onSetDueDate,
   onDeleteTodo,
   editingTodoId,
   setEditingTodoId,
@@ -84,6 +86,7 @@ export default function CategoryDetailView({
                 todo={todo}
                 onToggle={onToggleTodo}
                 onSetPlannedDate={onSetPlannedDate}
+                onSetDueDate={onSetDueDate}
                 onDelete={onDeleteTodo}
                 isEditing={editingTodoId === todo.id}
                 editingContent={editingTodoContent}
@@ -114,6 +117,7 @@ export default function CategoryDetailView({
                 key={todo.id}
                 todo={todo}
                 onToggle={onToggleTodo}
+                onSetDueDate={onSetDueDate}
                 onSetPlannedDate={onSetPlannedDate}
                 onDelete={onDeleteTodo}
                 isEditing={editingTodoId === todo.id}
@@ -143,6 +147,7 @@ export default function CategoryDetailView({
                 key={todo.id}
                 todo={todo}
                 onToggle={onToggleTodo}
+                onSetDueDate={onSetDueDate}
                 onSetPlannedDate={onSetPlannedDate}
                 onDelete={onDeleteTodo}
                 isEditing={editingTodoId === todo.id}

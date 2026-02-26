@@ -1,9 +1,17 @@
 "use client";
-import React, { useState, useMemo, Dispatch, SetStateAction } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Todo, Category } from "@/store/useTodoStore";
 import TodoItem from "@/components/todo/TodoItem";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface TodayViewProps {
   todos: Todo[];
@@ -12,6 +20,7 @@ interface TodayViewProps {
   setDayOffset: Dispatch<SetStateAction<number>>;
   onToggleTodo: (id: string, completed: boolean) => void;
   onSetPlannedDate: (id: string, date: string | null) => void;
+  onSetDueDate: (id: string, date: string | null) => void;
   onDeleteTodo: (id: string) => void;
   editingTodoId: string | null;
   setEditingTodoId: (id: string | null) => void;
@@ -29,6 +38,7 @@ export default function TodayView({
   setDayOffset,
   onToggleTodo,
   onSetPlannedDate,
+  onSetDueDate,
   onDeleteTodo,
   editingTodoId,
   setEditingTodoId,
@@ -66,6 +76,53 @@ export default function TodayView({
   const pendingTodos = filteredTodos.filter((t) => !t.is_completed);
   const completedTodos = filteredTodos.filter((t) => t.is_completed);
 
+  const stats = useMemo(() => {
+    const total = filteredTodos.length;
+    const done = completedTodos.length;
+    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+    return { total, done, percent };
+  }, [filteredTodos, completedTodos]);
+
+  const prevPercentRef = useRef(stats.percent);
+
+  useEffect(() => {
+    // 0 -> 100% 가 되거나, 할 일이 있는 상태에서 100%에 도달했을 때 축하
+    if (
+      stats.percent === 100 &&
+      stats.total > 0 &&
+      prevPercentRef.current < 100
+    ) {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+      const randomInRange = (min: number, max: number) =>
+        Math.random() * (max - min) + min;
+
+      const interval: any = setInterval(function () {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        // since particles fall down, start a bit higher than random
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        });
+      }, 250);
+    }
+    prevPercentRef.current = stats.percent;
+  }, [stats.percent, stats.total]);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-8 mt-4">
@@ -81,9 +138,19 @@ export default function TodayView({
           <h2 className="text-[28px] font-light text-foreground tracking-tight leading-none lowercase">
             {targetDateLabel}
           </h2>
-          <span className="text-[11px] text-muted-foreground/50 font-medium tracking-widest uppercase">
-            {targetDateStr}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-muted-foreground/50 font-medium tracking-widest uppercase">
+              {targetDateStr}
+            </span>
+            {stats.total > 0 && (
+              <>
+                <span className="text-[10px] text-muted-foreground/20">•</span>
+                <span className="text-[11px] text-blue-500/60 font-bold tracking-widest uppercase">
+                  {stats.done}/{stats.total} {stats.percent}%
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
         <button
@@ -105,6 +172,7 @@ export default function TodayView({
                 categories={categories}
                 onToggle={onToggleTodo}
                 onSetPlannedDate={onSetPlannedDate}
+                onSetDueDate={onSetDueDate}
                 onDelete={onDeleteTodo}
                 isEditing={editingTodoId === todo.id}
                 editingContent={editingTodoContent}
@@ -150,6 +218,7 @@ export default function TodayView({
                 categories={categories}
                 onToggle={onToggleTodo}
                 onSetPlannedDate={onSetPlannedDate}
+                onSetDueDate={onSetDueDate}
                 onDelete={onDeleteTodo}
                 isEditing={editingTodoId === todo.id}
                 editingContent={editingTodoContent}

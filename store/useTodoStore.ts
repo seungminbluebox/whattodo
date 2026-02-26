@@ -25,6 +25,7 @@ export interface Todo {
   is_deleted: boolean;
   user_id: string;
   planned_date: string | null;
+  completed_at: string | null;
 }
 
 interface TodoState {
@@ -37,6 +38,7 @@ interface TodoState {
   updateTodo: (id: string, updates: Partial<Todo>) => Promise<void>;
   toggleTodo: (id: string, is_completed: boolean) => Promise<void>;
   setPlannedDate: (id: string, date: string | null) => Promise<void>;
+  setDueDate: (id: string, date: string | null) => Promise<void>;
   deleteTodo: (id: string) => Promise<void>;
   restoreTodo: (id: string) => Promise<void>;
   permanentlyDeleteTodo: (id: string) => Promise<void>;
@@ -240,10 +242,13 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }));
   },
   toggleTodo: async (id, is_completed) => {
-    const { error } = await supabase
-      .from("todos")
-      .update({ is_completed: !is_completed })
-      .eq("id", id);
+    const now = new Date().toISOString();
+    const updates = {
+      is_completed: !is_completed,
+      completed_at: !is_completed ? now : null,
+    };
+
+    const { error } = await supabase.from("todos").update(updates).eq("id", id);
 
     if (error) {
       console.error(error.message);
@@ -278,9 +283,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }
 
     set((state) => ({
-      todos: state.todos.map((t) =>
-        t.id === id ? { ...t, is_completed: !t.is_completed } : t,
-      ),
+      todos: state.todos.map((t) => (t.id === id ? { ...t, ...updates } : t)),
     }));
   },
   setPlannedDate: async (id, date) => {
@@ -297,6 +300,23 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     set((state) => ({
       todos: state.todos.map((t) =>
         t.id === id ? { ...t, planned_date: date } : t,
+      ),
+    }));
+  },
+  setDueDate: async (id, date) => {
+    const { error } = await supabase
+      .from("todos")
+      .update({ due_date: date })
+      .eq("id", id);
+
+    if (error) {
+      console.error(error.message);
+      return;
+    }
+
+    set((state) => ({
+      todos: state.todos.map((t) =>
+        t.id === id ? { ...t, due_date: date } : t,
       ),
     }));
   },
