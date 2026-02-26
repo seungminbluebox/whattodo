@@ -71,11 +71,6 @@ export default function CategoryList({
             <span className="flex-grow text-left text-[17px] font-light tracking-tight text-foreground/90 lowercase">
               inbox
             </span>
-            <div className="flex items-center gap-4 pointer-events-none">
-              <span className="text-foreground/20 text-xs tracking-widest">
-                {inboxTotal}
-              </span>
-            </div>
           </div>
           <div className="border-b border-border w-full"></div>
         </div>
@@ -146,11 +141,6 @@ export default function CategoryList({
                   )}
 
                   <div className="flex items-center gap-4">
-                    {!isEditing && (
-                      <span className="text-foreground/20 text-xs tracking-widest pointer-events-none">
-                        {total}
-                      </span>
-                    )}
                     {isEditing && !isEditingThis && (
                       <div
                         className="flex items-center gap-3"

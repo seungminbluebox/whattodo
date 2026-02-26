@@ -302,8 +302,8 @@ export default function TodoItem({
                             // Only highlight if explicitly planned for today
                             return todo.planned_date === todayStr;
                           })()
-                            ? "text-blue-500 bg-blue-500/15 shadow-sm font-bold"
-                            : "text-blue-500/40 hover:bg-blue-500/10 font-medium"
+                            ? "text-blue-600 bg-blue-500/25 shadow-md font-black scale-105"
+                            : "text-blue-500/90 hover:bg-blue-500/10 font-medium"
                         }`}
                         title="Today"
                       >
@@ -332,8 +332,8 @@ export default function TodoItem({
                             // Only highlight if explicitly planned for tomorrow
                             return todo.planned_date === tomStr;
                           })()
-                            ? "text-purple-500 bg-purple-500/15 shadow-sm font-bold"
-                            : "text-purple-500/40 hover:bg-purple-500/10 font-medium"
+                            ? "text-purple-600 bg-purple-500/25 shadow-md font-black scale-105"
+                            : "text-purple-500/90 hover:bg-purple-500/10 font-medium"
                         }`}
                         title="Tomorrow"
                       >
@@ -348,9 +348,9 @@ export default function TodoItem({
                         <input
                           type="date"
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          value={todo.due_date || ""}
                           onChange={(e) => {
-                            if (e.target.value)
-                              onSetDueDate?.(todo.id, e.target.value);
+                            onSetDueDate?.(todo.id, e.target.value || null);
                           }}
                           title="Pick a date"
                         />
@@ -363,8 +363,8 @@ export default function TodoItem({
                               new Date(
                                 new Date().setDate(new Date().getDate() + 1),
                               ).toLocaleDateString("sv-SE")
-                              ? "text-orange-500 bg-orange-500/15 shadow-sm font-bold"
-                              : "text-muted-foreground/30 hover:bg-foreground/5"
+                              ? "text-orange-600 bg-orange-500/25 shadow-md font-black scale-105"
+                              : "text-muted-foreground/80 hover:bg-foreground/5"
                           }`}
                           title="Select specific date"
                         >

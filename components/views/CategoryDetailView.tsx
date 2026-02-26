@@ -47,7 +47,7 @@ export default function CategoryDetailView({
 
   return (
     <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
-      <div className="flex items-start justify-between mb-2 mt-2">
+      <div className="flex items-center justify-between mb-8 mt-2">
         <button
           onClick={onBack}
           className="flex items-center gap-1 text-[13px] font-medium tracking-tight text-muted hover:text-foreground transition-colors py-1 px-2 -ml-2 rounded-md hover:bg-accent group"
@@ -59,19 +59,11 @@ export default function CategoryDetailView({
           />
           <span>카테고리</span>
         </button>
-        <div className="flex flex-col items-end gap-1">
-          <div className="text-foreground/40 text-[11px] tracking-widest font-bold uppercase">
-            {done} / {total}
-          </div>
-          <div className="text-foreground/20 text-[9px] tracking-[0.2em] font-medium uppercase">
-            {percent}% completed
-          </div>
-        </div>
-      </div>
 
-      <h2 className="text-[32px] font-light text-foreground tracking-tight leading-none lowercase">
-        {activeCategory.name}
-      </h2>
+        <h2 className="text-[32px] font-light text-foreground tracking-tight leading-none lowercase">
+          {activeCategory.name}
+        </h2>
+      </div>
 
       <section className="space-y-8 mt-12">
         {/* Scheduled Section */}
